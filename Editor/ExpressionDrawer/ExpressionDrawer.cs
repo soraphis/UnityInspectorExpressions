@@ -31,10 +31,14 @@ namespace UnityInspectorExpressions.Expressions
         {
             var conditionProp = property.FindPropertyRelative(s_PropertyName);
 
+            // calculate label text width:
+            GUIStyle.none.CalcMinMaxWidth(label, out var labelMinWidth, out var labelMaxWidth);
+            var customLabelWidth = Mathf.Min(EditorGUIUtility.labelWidth, Mathf.Max(labelMaxWidth, 200));
+            
             // position = EditorGUI.PrefixLabel(new Rect(position) { x = 0, y = 0 }, label); this does not work with the BeginClip() below
             if (label != GUIContent.none)
             {
-                var labelRect = position.CutLeft(EditorGUIUtility.labelWidth, out position);
+                var labelRect = position.CutLeft(customLabelWidth, out position);
                 labelRect.height = EditorGUIUtility.singleLineHeight;
                 GUI.Label(labelRect, label);
             }

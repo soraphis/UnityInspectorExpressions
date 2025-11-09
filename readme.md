@@ -1,6 +1,10 @@
 <h1 align="center">  
-
+ 
  Unity Inspector Expressions
+
+ <img width="824" alt="(title image)" src="Documentation~/ExampleExpression.png">
+
+
 
 </h1>
 
@@ -46,3 +50,4 @@ A set of custom drawers to create expression logic for most common types.
 - [Simple Usage Example](Documentation~/SimpleUsage.md)
 - Add Custom Expression Types
 - Add Support to your favorite SoA package
+- Rewrite Drawers using UIToolkit to have layouting more responsive
