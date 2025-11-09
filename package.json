@@ -1,0 +1,15 @@
+{
+  "name": "com.soraphis.expressions",
+  "displayName": "Inspector Expressions",
+  "version": "0.1.0",
+  "unity": "6000.0",
+  "description": "A Unity plugin to design complex exressions directly in the inspector.",
+  "license": "MIT",
+  "documentationUrl": "https://github.com/soraphis/inspector-expressions#readme",
+  "author": { "name": "Soraphis" },
+  "keywords": [ "expressions", "game logic", "unity", "plugin" ],
+  "dependencies": {
+  },
+  "samples": [
+  ]
+}
