@@ -1,10 +1,10 @@
 ﻿using System;
 using Editor.Helpers;
-using Project.Expressions.Base;
+using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
 using UnityEngine;
 
-namespace Project.Expressions
+namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(UnaryBoolExpression))]
     [CustomPropertyDrawer(typeof(UnaryFloatExpression))]

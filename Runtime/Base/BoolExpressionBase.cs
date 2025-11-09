@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Project.Expressions.Base
+namespace UnityInspectorExpressions.Expressions.Base
 {
 
     [System.Serializable]

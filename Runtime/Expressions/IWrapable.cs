@@ -1,4 +1,4 @@
-﻿namespace Project.Expressions
+﻿namespace UnityInspectorExpressions.Expressions
 {
     /// <summary>
     /// Interface that allows easy wrapping of expressions.

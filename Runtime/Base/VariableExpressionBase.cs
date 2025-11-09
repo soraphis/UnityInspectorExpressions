@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Project.Expressions.Base;
+using UnityInspectorExpressions.Expressions.Base;
 using UnityEngine;
 
-namespace Project.Expressions.Base
+namespace UnityInspectorExpressions.Expressions.Base
 {
     public interface IGetValue<TInner>{ TInner GetValue(); }
     

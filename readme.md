@@ -32,7 +32,7 @@ using Unity Package Manager:
 add a package to 
 
 ```
-git@github.com:soraphis/inspector-expressions.git
+git@github.com:soraphis/UnityInspectorExpressions.git
 ```
 
 # Features

@@ -3,7 +3,7 @@ using Editor.Helpers;
 using UnityEditor;
 using UnityEngine;
 
-namespace Project.Expressions
+namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(BoolExpression))]
     [CustomPropertyDrawer(typeof(FloatExpression))]

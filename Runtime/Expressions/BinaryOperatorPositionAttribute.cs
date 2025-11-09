@@ -1,6 +1,6 @@
 using System;
 
-namespace Project.Expressions
+namespace UnityInspectorExpressions.Expressions
 {
 	public enum BinaryOperatorPosition { Operator, FunctionCall }
 

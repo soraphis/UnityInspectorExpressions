@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Project.Expressions.Base;
+using UnityInspectorExpressions.Expressions.Base;
 using UnityEngine;
 
-namespace Project.Expressions
+namespace UnityInspectorExpressions.Expressions
 {
 	[System.Serializable]
 	public struct IntExpression : IExpression<int>, ISerializationCallbackReceiver

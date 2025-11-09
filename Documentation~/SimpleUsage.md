@@ -5,7 +5,7 @@ The simplest way to use the expressions in your own code and components is to ad
 For example, the following code snippet will use an IntExpression.
 
 ```csharp
-using Project.Expressions;
+using UnityInspectorExpressions.Expressions;
 
 public class TestComponent : MonoBehaviour
 {

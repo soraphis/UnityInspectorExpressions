@@ -1,8 +1,8 @@
-﻿using Project.Expressions.Base;
+﻿using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
 using UnityEngine;
 
-namespace Project.Expressions
+namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(LiteralBoolExpression))]
     public class BoolLiteralExpressionDrawer : PropertyDrawer

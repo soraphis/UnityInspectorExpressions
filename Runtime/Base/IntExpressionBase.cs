@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = System.Random;
 
-namespace Project.Expressions.Base
+namespace UnityInspectorExpressions.Expressions.Base
 {
     [System.Serializable]
     public abstract class IntExpressionBase : IExpression<int>, IWrapable<UnaryIntExpression>, IWrapable<BinaryIntExpression>
