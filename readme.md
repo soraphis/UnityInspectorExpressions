@@ -44,10 +44,10 @@ git@github.com:soraphis/UnityInspectorExpressions.git
 A set of custom drawers to create expression logic for most common types.
 
 
-# Documentation
+# TODO
 
-// TODO, add Tutorials to:
-- [Simple Usage Example](Documentation~/SimpleUsage.md)
-- Add Custom Expression Types
-- Add Support to your favorite SoA package
-- Rewrite Drawers using UIToolkit to have layouting more responsive
+- Tutorials to:
+  - [Simple Usage Example](Documentation~/SimpleUsage.md)
+  - Add Custom Expression Types
+  - Add Support to your favorite SoA package
+- Rewrite Drawers using UIToolkit to have layouting more responsive and visually more appealing
