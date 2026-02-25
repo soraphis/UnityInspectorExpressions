@@ -127,4 +127,88 @@ namespace UnityInspectorExpressions.Expressions.Base
 	    }
     }
 
+    [System.Serializable]
+    public class UnaryVector2CastToFloatExpression : FloatExpressionBase
+    {
+        public enum UnaryOperator
+        {
+            X,
+            Y,
+            Magnitude,
+        }
+        [SerializeField] internal Vector2Expression m_InnerExpr;
+        [SerializeField] internal UnaryOperator m_Operator;
+        public override float Evaluate(Dictionary<int, object> ctx)
+        {
+            var v = m_InnerExpr.Evaluate(ctx);
+            return m_Operator switch
+            {
+                UnaryOperator.X => v.x,
+                UnaryOperator.Y => v.y,
+                UnaryOperator.Magnitude => v.magnitude,
+                _ => throw new NotImplementedException(),
+            };
+        }
+    }
+
+    [System.Serializable]
+    public class BinaryVector2CastToFloatExpression : FloatExpressionBase
+    {
+        public enum BinaryOperator
+        {
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall)] Dot,
+        }
+        [SerializeField] internal Vector2Expression m_InnerExpr1;
+        [SerializeField] internal Vector2Expression m_InnerExpr2;
+        [SerializeField] internal BinaryOperator m_Operator;
+        public override float Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        {
+            BinaryOperator.Dot => Vector2.Dot(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    [System.Serializable]
+    public class UnaryVector3CastToFloatExpression : FloatExpressionBase
+    {
+        public enum UnaryOperator
+        {
+            X,
+            Y,
+            Z,
+            Magnitude,
+        }
+        [SerializeField] internal Vector3Expression m_InnerExpr;
+        [SerializeField] internal UnaryOperator m_Operator;
+        public override float Evaluate(Dictionary<int, object> ctx)
+        {
+            var v = m_InnerExpr.Evaluate(ctx);
+            return m_Operator switch
+            {
+                UnaryOperator.X => v.x,
+                UnaryOperator.Y => v.y,
+                UnaryOperator.Z => v.z,
+                UnaryOperator.Magnitude => v.magnitude,
+                _ => throw new NotImplementedException(),
+            };
+        }
+    }
+
+    [System.Serializable]
+    public class BinaryVector3CastToFloatExpression : FloatExpressionBase
+    {
+        public enum BinaryOperator
+        {
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall)] Dot,
+        }
+        [SerializeField] internal Vector3Expression m_InnerExpr1;
+        [SerializeField] internal Vector3Expression m_InnerExpr2;
+        [SerializeField] internal BinaryOperator m_Operator;
+        public override float Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        {
+            BinaryOperator.Dot => Vector3.Dot(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            _ => throw new NotImplementedException(),
+        };
+    }
+
 }
