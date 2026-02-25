@@ -8,6 +8,8 @@ namespace UnityInspectorExpressions.Expressions
     [CustomPropertyDrawer(typeof(BoolExpression))]
     [CustomPropertyDrawer(typeof(FloatExpression))]
     [CustomPropertyDrawer(typeof(IntExpression))]
+    [CustomPropertyDrawer(typeof(Vector2Expression))]
+    [CustomPropertyDrawer(typeof(Vector3Expression))]
     [CustomPropertyDrawer(typeof(ComponentExpression))]
     [CustomPropertyDrawer(typeof(GameObjectExpression))]
     public class ExpressionDrawer : PropertyDrawer
