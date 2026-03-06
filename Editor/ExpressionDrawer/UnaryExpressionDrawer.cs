@@ -1,8 +1,9 @@
 ﻿using System;
-using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
@@ -14,28 +15,44 @@ namespace UnityInspectorExpressions.Expressions
         const string s_InnerPropertyName = "m_InnerExpr";
         const string s_OperatorPropertyName = "m_Operator";
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return EditorGUIUtility.singleLineHeight;
-        }
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
             var operProp = property.FindPropertyRelative(s_OperatorPropertyName);
 
-            Span<Rect> rects = stackalloc Rect[4];
-            using (var x = position.Row(rects))
-            {
-                x.Container(40);
-                x.Container(8);
-                x.Flex(1, 60);
-                x.Container(8);
-            }
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.flexGrow = 1;
 
-            EditorGUI.PropertyField(rects[0], operProp, GUIContent.none);
-            GUI.Label(rects[1].Shift(0, -1), "(");
-            EditorGUI.PropertyField(rects[2], exprProp, GUIContent.none);
-            GUI.Label(rects[3].Shift(0, -1), ")");
+            var opField = new PropertyField(operProp, "") { style = { minWidth = 40, maxWidth = 60 } };
+            opField.style.flexShrink = 0;
+
+            var lblOpen = MakeLabel("(");
+
+            var innerField = new PropertyField(exprProp, "");
+            innerField.style.flexGrow = 1;
+            innerField.style.flexShrink = 1;
+
+            var lblClose = MakeLabel(")");
+
+            row.Add(opField);
+            row.Add(lblOpen);
+            row.Add(innerField);
+            row.Add(lblClose);
+            return row;
+        }
+        
+        static Label MakeLabel(string text)
+        {
+            var lbl = new Label(text);
+            lbl.style.flexShrink = 0;
+            lbl.style.paddingLeft = 2;
+            lbl.style.paddingRight = 2;
+            lbl.style.height = 20;
+            lbl.style.fontSize = 20;
+            lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
+            return lbl;
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using Editor.Helpers;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
@@ -12,87 +14,110 @@ namespace UnityInspectorExpressions.Expressions
     [CustomPropertyDrawer(typeof(Vector3Expression))]
     [CustomPropertyDrawer(typeof(ComponentExpression))]
     [CustomPropertyDrawer(typeof(GameObjectExpression))]
+    [CustomPropertyDrawer(typeof(StringExpression))]
     public class ExpressionDrawer : PropertyDrawer
     {
         const string s_PropertyName = "m_ExpressionRef";
 
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var conditionProp = property.FindPropertyRelative(s_PropertyName);
 
-            if (conditionProp.managedReferenceValue == null)
-                return EditorGUIUtility.singleLineHeight;
+            // ── outer row ─────────────────────────────────────────────────
+            var root = new VisualElement();
+            root.style.flexDirection = FlexDirection.Row;
+            root.style.alignItems    = Align.FlexStart;
+            root.style.flexGrow      = 1;
 
-            return EditorGUI.GetPropertyHeight(conditionProp, true);
-
-        }
-
-
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            var conditionProp = property.FindPropertyRelative(s_PropertyName);
-
-            // calculate label text width:
-            GUIStyle.none.CalcMinMaxWidth(label, out var labelMinWidth, out var labelMaxWidth);
-            var customLabelWidth = Mathf.Min(EditorGUIUtility.labelWidth, Mathf.Max(labelMaxWidth, 200));
-            
-            // position = EditorGUI.PrefixLabel(new Rect(position) { x = 0, y = 0 }, label); this does not work with the BeginClip() below
-            if (label != GUIContent.none)
+            // ── label ─────────────────────────────────────────────────────
+            var labelText = preferredLabel;
+            if (!string.IsNullOrEmpty(labelText))
             {
-                var labelRect = position.CutLeft(customLabelWidth, out position);
-                labelRect.height = EditorGUIUtility.singleLineHeight;
-                GUI.Label(labelRect, label);
+                var lbl = new Label(labelText);
+                lbl.style.flexShrink    = 0;
+                lbl.style.height        = Length.Percent(100);
+                lbl.style.minWidth      = 100;
+                lbl.style.maxWidth      = 200;
+                lbl.style.paddingRight  = 4;
+                lbl.style.unityTextAlign = TextAnchor.MiddleLeft;
+                root.Add(lbl);
             }
 
-            
-            var left = position.CutLeft(8, out position);
-            left.height = EditorGUIUtility.singleLineHeight;
-            var hover = left.Contains(Event.current.mousePosition);
-            using (new GUI.ClipScope(left))
+            // ── "…" type-selector button ──────────────────────────────────
+            var moreBtn = new Button();
+            moreBtn.style.flexShrink    = 0;
+            moreBtn.style.width         = 16; 
+            moreBtn.style.height        = 20;
+            moreBtn.style.paddingLeft   = 0;
+            moreBtn.style.paddingRight  = 0;
+            moreBtn.style.paddingTop    = 0;
+            moreBtn.style.paddingBottom = 0;
+            moreBtn.style.marginRight   = 2;
+            moreBtn.Add(new Image
             {
-                var buttonRect = new Rect(-4, 1, 16, left.height);
-                if (GUI.Button(buttonRect, EditorGUIUtility.IconContent("d_more"), EditorStyles.iconButton))
+                image     = EditorGUIUtility.IconContent("d_more").image as Texture2D,
+                scaleMode = ScaleMode.ScaleToFit,
+                style     = { flexGrow = 1 }
+            });
+
+            moreBtn.clicked += () =>
+            {
+                var menu = ManagedReferenceDrawerHelper.TypeSelectorMenu(conditionProp, new Rect());
+                menu.AddSeparator("");
+
+                var wrappables = ReflectionHelper.GetAllGenericImplementationsTypes(
+                    conditionProp.managedReferenceValue, typeof(IWrapable<>));
+
+                foreach (var wrappableType in wrappables)
                 {
-                    var menu = ManagedReferenceDrawerHelper.TypeSelectorMenu(conditionProp, buttonRect);
-
-                    // TODO: find all IWrapable implementations for type
-
-                    menu.AddSeparator("");
-
-                    var wrappables = ReflectionHelper.GetAllGenericImplementationsTypes(conditionProp.managedReferenceValue, typeof(IWrapable<>));
-
-                    foreach (var wrappableTypes in wrappables)
+                    var scopedType = wrappableType;
+                    menu.AddItem(new GUIContent("Wrap with " + scopedType.Name), false, () =>
                     {
-                        var scopedWrappableType = wrappableTypes;
-                        menu.AddItem(new GUIContent("Wrap with " + scopedWrappableType.Name), false, () =>
-                        {
-                            var method = typeof(IWrapable<>).MakeGenericType(scopedWrappableType).GetMethod("Wrap");
-                            conditionProp.managedReferenceValue = method.Invoke(conditionProp.managedReferenceValue, Array.Empty<object>());
-                            conditionProp.serializedObject.ApplyModifiedProperties();
+                        var method = typeof(IWrapable<>).MakeGenericType(scopedType).GetMethod("Wrap");
+                        conditionProp.managedReferenceValue =
+                            method.Invoke(conditionProp.managedReferenceValue, Array.Empty<object>());
+                        conditionProp.serializedObject.ApplyModifiedProperties();
+                    });
+                }
 
-                        });
-                    }
+                menu.ShowAsContext();
+            };
 
-                    menu.DropDown(buttonRect);
+            root.Add(moreBtn);
+
+            // ── inner content (null hint or actual PropertyField) ─────────
+            var content = new VisualElement();
+            content.style.flexGrow   = 1;
+            content.style.flexShrink = 1;
+            root.Add(content);
+
+            void RebuildContent()
+            {
+                content.Clear();
+                if (conditionProp.managedReferenceValue == null)
+                {
+                    var helpBox = new HelpBox("null", HelpBoxMessageType.Info);
+                    helpBox.style.flexGrow = 1;
+                    content.Add(helpBox);
+                }
+                else
+                {
+                    var field = new PropertyField(conditionProp, "");
+                    field.style.flexGrow = 1;
+                    content.Add(field);
+                    field.Bind(conditionProp.serializedObject);
                 }
             }
 
-            if (conditionProp.managedReferenceValue == null)
-            {
-                EditorGUI.HelpBox(position, "null", MessageType.Info);
-                return;
-            }
+            RebuildContent();
 
-            EditorGUI.PropertyField(position, conditionProp, GUIContent.none);
+            // Only rebuild when the managed reference itself changes (type swap / null / wrap).
+            // TrackPropertyValue on a [SerializeReference] field fires when the reference is
+            // reassigned, but NOT on simple value-changes inside the referenced object, so the
+            // bool-toggle button (and any other child field) won't get torn down on every edit.
+            root.TrackPropertyValue(conditionProp, _ => RebuildContent());
 
-            if (hover)
-            {
-                EditorGUI.DrawRect(position, new Color(0.2f, 0.6f, 1f, 0.1f));
-            }
+            return root;
         }
-
     }
-
-
 }

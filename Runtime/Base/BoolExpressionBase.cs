@@ -18,6 +18,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         ManyBoolExpression IWrapable<ManyBoolExpression>.Wrap() => new ManyBoolExpression() { m_InnerExpr = new() { new() { m_ExpressionRef = this } } };
     }
     [System.Serializable]
+    [ExpressionLabel("Bool/Literal")]
     public class LiteralBoolExpression : BoolExpressionBase
     {
         [SerializeField] internal bool m_Literal;
@@ -27,6 +28,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Bool/Unary")]
     public class UnaryBoolExpression : BoolExpressionBase
     {
         public enum UnaryOperator
@@ -42,6 +44,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
     [System.Serializable]
+    [ExpressionLabel("Bool/Binary")]
     public class BinaryBoolExpression : BoolExpressionBase
     {
         public enum BinaryOperator
@@ -67,6 +70,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Bool/Many")]
     public class ManyBoolExpression : BoolExpressionBase
     {
         public enum ManyOperator
@@ -84,6 +88,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
 
+    [ExpressionLabel("From Float/Relational")]
     public class FloatRelationalExpression : BoolExpressionBase
     {
         public enum BinaryOperator
@@ -113,6 +118,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
 
+    [ExpressionLabel("From Int/Relational")]
     public class IntRelationalExpression : BoolExpressionBase
     {
 	    public enum BinaryOperator
@@ -140,12 +146,14 @@ namespace UnityInspectorExpressions.Expressions.Base
 	    };
     }
 
+    [ExpressionLabel("From GameObject/Relational")]
     public class GameObjectRelationalExpression : BoolExpressionBase
     {
 	    public enum BinaryOperator
 	    {
 		    [InspectorName("==")] Equal,
-
+		    [InspectorName("!=")] Unequal,
+		    [InspectorName("Is Child Of")] IsChildOf,
 	    }
 	    [SerializeField] internal GameObjectExpression m_InnerExpr1;
 	    [SerializeField] internal GameObjectExpression m_InnerExpr2;
@@ -153,7 +161,30 @@ namespace UnityInspectorExpressions.Expressions.Base
 	    public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
 	    {
 		    BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
+		    BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
+		    BinaryOperator.IsChildOf => m_InnerExpr1.Evaluate(ctx).transform.IsChildOf(m_InnerExpr2.Evaluate(ctx).transform),
 		    _ => throw new NotImplementedException(),
 	    };
     }
+    
+
+    public abstract class BoolResultFunctionExpression<TObj, TArg0> : BoolExpressionBase
+    {
+	    [SerializeField] internal TObj m_Object;
+	    [SerializeField] internal TArg0 m_Argument;
+    }
+    
+    [ExpressionLabel("From GameObject/Fn: Compare Tag")]
+    public class GameObject_CompareTag_FunctionExpression : BoolResultFunctionExpression<GameObjectExpression, StringExpression>
+	{
+	    public override bool Evaluate(Dictionary<int, object> ctx)
+	    {
+		    var go = m_Object.Evaluate(ctx);
+		    var tag = m_Argument.Evaluate(ctx);
+		    return go.CompareTag(tag);
+	    }
+	}
+    
+	
+    
 }

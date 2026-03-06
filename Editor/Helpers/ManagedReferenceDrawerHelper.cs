@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityInspectorExpressions.Expressions;
 
 namespace Editor.Helpers
 {
@@ -23,7 +24,8 @@ namespace Editor.Helpers
 
             foreach (var type in GetAppropriateTypesForAssigningToManagedReference(GetManagedReferenceFieldType(property)))
             {
-                context.AddItem(new GUIContent(type.Name), false, () =>
+                var label = GetMenuLabel(type);
+                context.AddItem(new GUIContent(label), false, () =>
                 {
                     property.managedReferenceValue = Activator.CreateInstance(type);
                     property.serializedObject.ApplyModifiedProperties();
@@ -31,6 +33,13 @@ namespace Editor.Helpers
             }
 
             return context;
+        }
+
+        /// Returns the ExpressionLabelAttribute label if present, otherwise the type name.
+        public static string GetMenuLabel(Type type)
+        {
+            var attr = type.GetCustomAttributes(typeof(ExpressionLabelAttribute), false);
+            return attr.Length > 0 ? ((ExpressionLabelAttribute)attr[0]).Label : type.Name;
         }
 
 

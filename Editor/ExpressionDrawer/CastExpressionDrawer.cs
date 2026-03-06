@@ -2,68 +2,73 @@ using System;
 using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-	[CustomPropertyDrawer(typeof(IntToFloatCastExpression))]
-	[CustomPropertyDrawer(typeof(FloatToIntCastExpression))]
-	public class CastExpressionDrawer : PropertyDrawer
-	{
-		const string s_InnerPropertyName    = "m_InnerExpr";
+    [CustomPropertyDrawer(typeof(IntToFloatCastExpression))]
+    [CustomPropertyDrawer(typeof(FloatToIntCastExpression))]
+    public class CastExpressionDrawer : PropertyDrawer
+    {
+        const string s_InnerPropertyName = "m_InnerExpr";
 
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			return EditorGUIUtility.singleLineHeight;
-		}
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
 
-			Span<Rect> rects = stackalloc Rect[2];
-			using (var x = position.Row(rects))
-			{
-				x.Container(40);
-				x.Flex(1, 60);
-			}
+            var typename = fieldInfo.FieldType.Name;
+            var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
 
-			var typename = fieldInfo.FieldType.Name;
-			// typename always ends with "ExpressionBase"
-			var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
-			var content = new GUIContent($"({castName.ToLower()})");
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.flexGrow = 1;
 
-			GUI.Label(rects[0].Shift(0, -1), content);
-			EditorGUI.PropertyField(rects[1], exprProp, GUIContent.none);
-		}
-	}
+            var lbl = new Label($"({castName.ToLower()})");
+            lbl.style.flexShrink = 0;
+            lbl.style.minWidth = 40;
+            lbl.style.paddingRight = 2;
 
-	[CustomPropertyDrawer(typeof(ComponentToGameObjectExpression))]
-	public class PropertyAccessExpressionDrawer : PropertyDrawer
-	{
-		const string s_InnerPropertyName = "m_InnerExpr";
+            var inner = new PropertyField(exprProp, "");
+            inner.style.flexGrow = 1;
+            inner.style.flexShrink = 1;
 
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			return EditorGUIUtility.singleLineHeight;
-		}
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
+            row.Add(lbl);
+            row.Add(inner);
+            return row;
+        }
+    }
 
-			Span<Rect> rects = stackalloc Rect[2];
-			using (var x = position.Row(rects))
-			{
-				x.Flex(1, 60);
-				x.Container(100);
-			}
+    [CustomPropertyDrawer(typeof(ComponentToGameObjectExpression))]
+    public class PropertyAccessExpressionDrawer : PropertyDrawer
+    {
+        const string s_InnerPropertyName = "m_InnerExpr";
 
-			var typename = fieldInfo.FieldType.Name;
-			// typename always ends with "ExpressionBase"
-			var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
-			var content = new GUIContent($".{castName.ToLower()}");
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
 
-			EditorGUI.PropertyField(rects[0], exprProp, GUIContent.none);
-			GUI.Label(rects[1].Shift(0, -1), content);
-		}
-	}
+            var typename = fieldInfo.FieldType.Name;
+            var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
+
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.flexGrow = 1;
+
+            var inner = new PropertyField(exprProp, "");
+            inner.style.flexGrow = 1;
+            inner.style.flexShrink = 1;
+
+            var lbl = new Label($".{castName.ToLower()}");
+            lbl.style.flexShrink = 0;
+            lbl.style.minWidth = 40;
+            lbl.style.paddingLeft = 2;
+
+            row.Add(inner);
+            row.Add(lbl);
+            return row;
+        }
+    }
 }

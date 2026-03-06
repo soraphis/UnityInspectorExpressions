@@ -1,7 +1,8 @@
 using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
@@ -10,24 +11,27 @@ namespace UnityInspectorExpressions.Expressions
 	{
 		const string s_PropertyName = "m_DynamicSlot";
 
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			return EditorGUIUtility.singleLineHeight;
-		}
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var literalProp = property.FindPropertyRelative(s_PropertyName);
 
-			position.height = EditorGUIUtility.singleLineHeight;
-			var rects = new SpanQueue<Rect>(stackalloc Rect[2]);
-			using (var x = position.Row(rects))
-			{
-				x.Container(50);
-				x.Flex(1, 50);
-			}
+			var row = new VisualElement();
+			row.style.flexDirection = FlexDirection.Row;
+			row.style.alignItems = Align.Center;
+			row.style.flexGrow = 1;
 
-			EditorGUI.LabelField(rects.Next(), "dyn:");
-			EditorGUI.PropertyField(rects.Next(), literalProp, GUIContent.none);
+			var lbl = new Label("dyn:");
+			lbl.style.flexShrink = 0;
+			lbl.style.minWidth = 30;
+			lbl.style.maxWidth = 50;
+
+			var field = new PropertyField(literalProp, "");
+			field.style.flexGrow = 1;
+			field.style.flexShrink = 1;
+
+			row.Add(lbl);
+			row.Add(field);
+			return row;
 		}
 	}
 
@@ -37,16 +41,13 @@ namespace UnityInspectorExpressions.Expressions
 	{
 		const string s_PropertyName = "m_Variable";
 
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			return EditorGUIUtility.singleLineHeight;
-		}
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var literalProp = property.FindPropertyRelative(s_PropertyName);
-
-			position.height = EditorGUIUtility.singleLineHeight;
-			EditorGUI.PropertyField(position, literalProp, GUIContent.none);
+			var field = new PropertyField(literalProp, "");
+			field.style.flexGrow = 1;
+			field.style.flexShrink = 1;
+			return field;
 		}
 	}
 }

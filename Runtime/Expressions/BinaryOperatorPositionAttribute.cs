@@ -2,6 +2,17 @@ using System;
 
 namespace UnityInspectorExpressions.Expressions
 {
+	/// <summary>
+	/// Overrides the label shown for this expression type in the type-selector menu.
+	/// Use forward slashes to create sub-menus, e.g. "Bool/Literal".
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+	public class ExpressionLabelAttribute : Attribute
+	{
+		public readonly string Label;
+		public ExpressionLabelAttribute(string label) => Label = label;
+	}
+
 	public enum BinaryOperatorPosition { Operator, FunctionCall }
 
 	public class BinaryOperatorPositionAttribute : Attribute

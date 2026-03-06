@@ -14,6 +14,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Component/Literal")]
     public class LiteralComponentExpression : ComponentExpressionBase
     {
         [SerializeField] internal Component m_Literal;
@@ -25,6 +26,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 
 
     [System.Serializable]
+    [ExpressionLabel("Component/Match First")]
     public class MatchFirstComponentExpression : ComponentExpressionBase
     {
         [System.Serializable]

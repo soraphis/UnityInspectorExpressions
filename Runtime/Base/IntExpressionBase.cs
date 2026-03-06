@@ -17,6 +17,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Int/Literal")]
     public class LiteralIntExpression : IntExpressionBase
     {
         [SerializeField] internal int m_Literal;
@@ -29,6 +30,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 
 
     [System.Serializable]
+    [ExpressionLabel("Int/Unary")]
     public class UnaryIntExpression : IntExpressionBase
     {
         public enum UnaryOperator
@@ -55,6 +57,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Int/Binary")]
     public class BinaryIntExpression : IntExpressionBase
     {
         public enum BinaryOperator
@@ -91,6 +94,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     // TODO: ternary -> int?
 
     [System.Serializable]
+    [ExpressionLabel("Int/Match First")]
     public class MatchFirstIntExpression : IntExpressionBase
     {
         [System.Serializable]
@@ -115,6 +119,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Int/Cast from Float")]
     public class FloatToIntCastExpression : IntExpressionBase
     {
 	    // TODO: maybe make it a "unary" expression, where Floor/Ceil/Round/Cast can be chosen.

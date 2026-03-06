@@ -1,114 +1,163 @@
-﻿using System;
-using Editor.Helpers;
-using UnityInspectorExpressions.Expressions.Base;
+﻿using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
-using UnityEditorInternal;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(MatchFirstFloatExpression))]
     [CustomPropertyDrawer(typeof(MatchFirstIntExpression))]
+    [CustomPropertyDrawer(typeof(MatchFirstStringExpression))]
     [CustomPropertyDrawer(typeof(MatchFirstComponentExpression))]
     [CustomPropertyDrawer(typeof(MatchFirstGameObjectExpression))]
     public class MatchFirstFloatExpressionDrawer : PropertyDrawer
     {
         const string s_DefaultExprPropertyName = "m_DefaultExpr";
-        const string s_EntriesPropertyName = "m_Entries";
+        const string s_EntriesPropertyName      = "m_Entries";
 
-        private ReorderableList reorderableList;
-        private Action          delayedAction;
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            var entriesProp = property.FindPropertyRelative(s_EntriesPropertyName);
-
-            return EditorGUIUtility.singleLineHeight // label line
-                + Mathf.Max(1, entriesProp.arraySize) * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing)
-                    + 10 // reorderable list padding
-                + EditorGUIUtility.singleLineHeight // default line
-                ;
-        }
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var entriesProp = property.FindPropertyRelative(s_EntriesPropertyName);
             var defaultProp = property.FindPropertyRelative(s_DefaultExprPropertyName);
 
-            var labelRect = position.CutTop(EditorGUIUtility.singleLineHeight, out position)
-                .Padding(0, 10, 0, 0)
-                .CutLeft(position.width - 55, out var plusBtnRect);
-            labelRect.width = 100;
-            GUI.Label(labelRect, new GUIContent("match first {"));
+            // ── outer column ──────────────────────────────────────────────
+            var root = new VisualElement();
+            root.style.flexGrow = 1;
 
-            //position.xMin = EditorGUIUtility.labelWidth + 10;
-            position.xMin +=  10;
+            // ── header row:  "match first {"    [+] ──────────────────────
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.alignItems    = Align.Center;
+            header.style.marginBottom  = 2;
 
-            var delBtnContent = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
-            delBtnContent.tooltip = "Delete";
+            var lblHeader = new Label("match first {");
+            lblHeader.style.flexGrow   = 1;
+            lblHeader.style.flexShrink = 0;
 
-            var lastLine = position.CutBottom(EditorGUIUtility.singleLineHeight, out position);
-
-            if (reorderableList == null)
-            {
-                reorderableList = new ReorderableList(entriesProp.serializedObject, entriesProp)
-                {
-                    elementHeight = EditorGUIUtility.singleLineHeight,
-                    drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
-                    {
-                        rect = rect.Padding(30, 0, 0, 0);
-                        var element = entriesProp.GetArrayElementAtIndex(index);
-
-                        // Draw the property field for the current element
-                        EditorGUI.PropertyField(rect, element, GUIContent.none);
-
-                        if (GUI.Button(rect.RowPrepend(16).Padding(0, 4, 0, 0).Shift(0, 1), delBtnContent, EditorStyles.iconButton))
-                        {
-	                        var indexScoped = index;
-	                        delayedAction += () => entriesProp.DeleteArrayElementAtIndex(indexScoped);
-                        }
-
-                    },
-                    drawHeaderCallback = (Rect rect) => { },
-                    displayAdd = false,
-                    displayRemove = false,
-                    headerHeight = 0,
-                };
-            }
-            reorderableList.DoList(position.Padding(0, 10, 1, 3));
-
-            delayedAction?.Invoke();
-            delayedAction = null;
-
-            var newBtnContent = EditorGUIUtility.IconContent("d_Toolbar Plus");
-            newBtnContent.tooltip = "Add case";
-            if (GUI.Button(plusBtnRect, newBtnContent))
+            var addBtn = new Button(() =>
             {
                 entriesProp.InsertArrayElementAtIndex(entriesProp.arraySize);
                 ResetChild(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
+                entriesProp.serializedObject.ApplyModifiedProperties();
+            });
+            addBtn.style.flexShrink    = 0;
+            addBtn.style.width         = 20;
+            addBtn.style.height        = 20;
+            addBtn.style.paddingLeft   = 0;
+            addBtn.style.paddingRight  = 0;
+            addBtn.style.paddingTop    = 0;
+            addBtn.style.paddingBottom = 0;
+            addBtn.Add(new Image
+            {
+                image     = EditorGUIUtility.IconContent("d_Toolbar Plus").image as Texture2D,
+                scaleMode = ScaleMode.ScaleToFit,
+                style     = { flexGrow = 1 }
+            });
+            addBtn.tooltip = "Add case";
+
+            header.Add(lblHeader);
+            header.Add(addBtn);
+            root.Add(header);
+
+            // ── body: indented list of match-entries ──────────────────────
+            var body = new VisualElement();
+            body.style.paddingLeft = 10;
+            root.Add(body);
+
+            void RebuildList()
+            {
+                body.Clear();
+                var so = entriesProp.serializedObject;
+                for (int i = 0; i < entriesProp.arraySize; i++)
+                {
+                    var idx      = i;
+                    var elemProp = entriesProp.GetArrayElementAtIndex(i);
+
+                    var row = new VisualElement();
+                    row.style.flexDirection = FlexDirection.Row;
+                    row.style.alignItems    = Align.Center;
+                    row.style.marginBottom  = 2;
+
+                    var delBtn = new Button();
+                    delBtn.style.flexShrink    = 0;
+                    delBtn.style.width         = 16;
+                    delBtn.style.height        = 16;
+                    delBtn.style.paddingLeft   = 0;
+                    delBtn.style.paddingRight  = 0;
+                    delBtn.style.paddingTop    = 0;
+                    delBtn.style.paddingBottom = 0;
+                    delBtn.Add(new Image
+                    {
+                        image     = EditorGUIUtility.IconContent("d_TreeEditor.Trash").image as Texture2D,
+                        scaleMode = ScaleMode.ScaleToFit,
+                        style     = { flexGrow = 1 }
+                    });
+                    delBtn.tooltip = "Delete";
+                    delBtn.clicked += () =>
+                    {
+                        entriesProp.DeleteArrayElementAtIndex(idx);
+                        entriesProp.serializedObject.ApplyModifiedProperties();
+                        RebuildList();
+                    };
+
+                    var elem = new PropertyField(elemProp, "");
+                    elem.style.flexGrow   = 1;
+                    elem.style.flexShrink = 1;
+                    elem.Bind(so);
+
+                    row.Add(delBtn);
+                    row.Add(elem);
+                    body.Add(row);
+                }
             }
 
-            lastLine.xMin += 105;
-            GUI.Label(lastLine.RowPrepend(60), new GUIContent("default"), CustomStyles.centerdLabel);
-            lastLine.xMin += 30;
-            GUI.Label(lastLine.RowPrepend(30), new GUIContent("\u21D2"), CustomStyles.centerdLabel);
+            RebuildList();
+            root.TrackPropertyValue(entriesProp, _ => RebuildList());
 
-            lastLine.xMax -= 10;
-            EditorGUI.PropertyField(lastLine, defaultProp, GUIContent.none);
-            GUI.Label(new Rect(lastLine) { xMin = lastLine.xMax, width = 10 }, new GUIContent("}"));
+            // ── footer row:  "  default ⇒ [expr] }" ──────────────────────
+            var footer = new VisualElement();
+            footer.style.flexDirection = FlexDirection.Row;
+            footer.style.alignItems    = Align.Center;
+            footer.style.marginTop     = 2;
+            footer.style.paddingLeft   = 10;
 
+            var lblDefault = new Label("default");
+            lblDefault.style.flexShrink          = 0;
+            lblDefault.style.minWidth            = 55;
+            lblDefault.style.unityTextAlign      = TextAnchor.MiddleCenter;
+
+            var lblArrow = new Label("\u21D2");
+            lblArrow.style.flexShrink      = 0;
+            lblArrow.style.paddingLeft     = 4;
+            lblArrow.style.paddingRight    = 4;
+            lblArrow.style.unityTextAlign  = TextAnchor.MiddleCenter;
+
+            var defaultField = new PropertyField(defaultProp, "");
+            defaultField.style.flexGrow   = 1;
+            defaultField.style.flexShrink = 1;
+
+            var lblClose = new Label("}");
+            lblClose.style.flexShrink  = 0;
+            lblClose.style.paddingLeft = 4;
+
+            footer.Add(lblDefault);
+            footer.Add(lblArrow);
+            footer.Add(defaultField);
+            footer.Add(lblClose);
+            root.Add(footer);
+
+            return root;
         }
 
-        private void ResetChild(SerializedProperty serializedProperty)
+        private static void ResetChild(SerializedProperty serializedProperty)
         {
             foreach (SerializedProperty child in serializedProperty)
             {
                 if (child.propertyType == SerializedPropertyType.ManagedReference)
-                {
                     child.managedReferenceValue = null;
-                }
                 else if (child.propertyType == SerializedPropertyType.ArraySize)
-                {
                     child.arraySize = 0;
-                }
             }
         }
     }
@@ -117,42 +166,43 @@ namespace UnityInspectorExpressions.Expressions
     //                  MATCH-ENTRY DRAWER
     // ///////////////////////////////////////////////////////////////////
 
-
     [CustomPropertyDrawer(typeof(MatchFirstFloatExpression.MatchEntry))]
     [CustomPropertyDrawer(typeof(MatchFirstIntExpression.MatchEntry))]
     [CustomPropertyDrawer(typeof(MatchFirstComponentExpression.MatchEntry))]
+    [CustomPropertyDrawer(typeof(MatchFirstStringExpression.MatchEntry))]
     public class MatchFirstFloatExpression_MatchEntryDrawer : PropertyDrawer
     {
         const string s_ConditionPropertyName = "m_Condition";
-        const string s_ResultPropertyName = "m_Result";
+        const string s_ResultPropertyName    = "m_Result";
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            return EditorGUIUtility.singleLineHeight;
-        }
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var condProp = property.FindPropertyRelative(s_ConditionPropertyName);
             var resuProp = property.FindPropertyRelative(s_ResultPropertyName);
-            position.height = EditorGUIUtility.singleLineHeight;
 
-            var countConditionChilds = 0;
-            var countResultChilds = 0;
-            foreach (var child in condProp.Copy()) { countConditionChilds++; }
-            foreach (var child in resuProp.Copy()) { countResultChilds++; }
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems    = Align.Center;
+            row.style.flexGrow      = 1;
 
+            var condField = new PropertyField(condProp, "");
+            condField.style.flexGrow   = 1;
+            condField.style.flexShrink = 1;
 
-            var rects = new SpanQueue<Rect>(stackalloc Rect[3]);
-            using (var x = position.Row(rects))
-            {
-                x.Flex(countConditionChilds, 60);
-                x.Container(30);
-                x.Flex(countResultChilds, 60);
-            }
+            var lblArrow = new Label("\u21D2");
+            lblArrow.style.flexShrink     = 0;
+            lblArrow.style.paddingLeft    = 4;
+            lblArrow.style.paddingRight   = 4;
+            lblArrow.style.unityTextAlign = TextAnchor.MiddleCenter;
 
-            EditorGUI.PropertyField(rects.Next(), condProp, GUIContent.none);
-            GUI.Label(rects.Next(), new GUIContent("\u21D2"), CustomStyles.centerdLabel);
-            EditorGUI.PropertyField(rects.Next(), resuProp, GUIContent.none);
+            var resultField = new PropertyField(resuProp, "");
+            resultField.style.flexGrow   = 1;
+            resultField.style.flexShrink = 1;
+
+            row.Add(condField);
+            row.Add(lblArrow);
+            row.Add(resultField);
+            return row;
         }
     }
 

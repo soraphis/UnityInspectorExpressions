@@ -14,6 +14,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("GameObject/Literal")]
     public class LiteralGameObjectExpression : GameObjectExpressionBase
     {
         [SerializeField] internal GameObject m_Literal;
@@ -23,6 +24,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("GameObject/Dynamic Slot")]
     public class DynamicGameObjectExpression : GameObjectExpressionBase
     {
         [SerializeField] internal int m_DynamicSlot;
@@ -30,6 +32,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("GameObject/Match First")]
     public class MatchFirstGameObjectExpression : GameObjectExpressionBase
     {
         [System.Serializable]
@@ -54,6 +57,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("GameObject/from Component")]
     public class ComponentToGameObjectExpression : GameObjectExpressionBase
     {
 	    [SerializeField] internal ComponentExpression m_InnerExpr;

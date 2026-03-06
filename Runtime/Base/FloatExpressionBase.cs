@@ -18,6 +18,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Literal")]
     public class LiteralFloatExpression : FloatExpressionBase
     {
         [SerializeField] internal float m_Literal;
@@ -30,6 +31,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 
 
     [System.Serializable]
+    [ExpressionLabel("Float/Unary")]
     public class UnaryFloatExpression : FloatExpressionBase
     {
         public enum UnaryOperator
@@ -60,6 +62,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Binary")]
     public class BinaryFloatExpression : FloatExpressionBase
     {
         public enum BinaryOperator
@@ -94,6 +97,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     // TODO: ternary -> float?
 
     [System.Serializable]
+    [ExpressionLabel("Float/Match First")]
     public class MatchFirstFloatExpression : FloatExpressionBase
     {
         [System.Serializable]
@@ -118,6 +122,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Cast from Int")]
     public class IntToFloatCastExpression : FloatExpressionBase
     {
 	    [SerializeField] internal IntExpression m_InnerExpr;
@@ -128,6 +133,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Vec2 Unary")]
     public class UnaryVector2CastToFloatExpression : FloatExpressionBase
     {
         public enum UnaryOperator
@@ -152,6 +158,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Vec2 Binary")]
     public class BinaryVector2CastToFloatExpression : FloatExpressionBase
     {
         public enum BinaryOperator
@@ -169,6 +176,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Vec3 Unary")]
     public class UnaryVector3CastToFloatExpression : FloatExpressionBase
     {
         public enum UnaryOperator
@@ -195,6 +203,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [System.Serializable]
+    [ExpressionLabel("Float/Vec3 Binary")]
     public class BinaryVector3CastToFloatExpression : FloatExpressionBase
     {
         public enum BinaryOperator

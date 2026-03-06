@@ -1,9 +1,9 @@
 using System;
-using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
-using UnityEditorInternal;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
@@ -11,121 +11,126 @@ namespace UnityInspectorExpressions.Expressions
     public class ManyBoolExpressionDrawer : PropertyDrawer
     {
         const string s_OperatorPropertyName = "m_Operator";
-        const string s_EntriesPropertyName = "m_InnerExpr";
-        
-        private ReorderableList reorderableList;
-        private Action          delayedAction;
-        
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        const string s_EntriesPropertyName  = "m_InnerExpr";
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var operatorProp = property.FindPropertyRelative(s_OperatorPropertyName);
-            var entriesProp = property.FindPropertyRelative(s_EntriesPropertyName);
+            var entriesProp  = property.FindPropertyRelative(s_EntriesPropertyName);
 
-            if (entriesProp.arraySize < 4)
-            {
-                // TODO: render in a single line
-            }
+            // ── outer column ──────────────────────────────────────────────
+            var root = new VisualElement();
+            root.style.flexGrow = 1;
 
-            float arrayHeightSum = 0;
-            for (int i = 0; i < entriesProp.arraySize; ++i)
-            {
-                arrayHeightSum += EditorGUI.GetPropertyHeight(entriesProp.GetArrayElementAtIndex(i), GUIContent.none) 
-                                  + 2; // spacing between elements
-            }
-            
-            return EditorGUI.GetPropertyHeight(operatorProp, GUIContent.none) +
-                   +arrayHeightSum
-                   + 10 // reorderable list padding;
-                ;
-        }
-        
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            var operatorProp = property.FindPropertyRelative(s_OperatorPropertyName);
-            var entriesProp = property.FindPropertyRelative(s_EntriesPropertyName);
-            
-            var labelRect = position.CutTop(EditorGUIUtility.singleLineHeight, out position)
-                .Padding(0, 10, 0, 0)
-                .CutLeft(position.width - 55, out var plusBtnRect);
-            labelRect.width = 100;
-            EditorGUI.PropertyField(labelRect, operatorProp, GUIContent.none);
-            GUI.Label(labelRect.Shift(100, 0), new GUIContent("{"));
-            
-            position.xMin +=  10;
-            
-            var delBtnContent = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
-            delBtnContent.tooltip = "Delete";
-            
-            var lastLine = position.CutBottom(EditorGUIUtility.singleLineHeight, out position);
-            if (reorderableList == null)
-            {
-                // TODO: ReorderableList does not support variable height elements. Needs replacement
-                reorderableList = new ReorderableList(entriesProp.serializedObject, entriesProp)
-                {
-                    elementHeight = EditorGUIUtility.singleLineHeight,
-                    drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
-                    {
-                        // -----
-                        // address variable heights, dirty fix. does not look nice.
-                        float arrayHeightSum = 0;
-                        for (int i = 0; i < index; ++i)
-                        {
-                            arrayHeightSum += EditorGUI.GetPropertyHeight(entriesProp.GetArrayElementAtIndex(i), GUIContent.none) 
-                                              + 2; // spacing between elements
-                        }
-                        var y = arrayHeightSum - ((EditorGUIUtility.singleLineHeight+2) * index);
-                        rect.y += y;
-                        // ----
-                        
-                        rect = rect.Padding(30, 0, 0, 0);
-                        
-                        var element = entriesProp.GetArrayElementAtIndex(index);
+            // ── header row:  [operator] {    [+] ──────────────────────────
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.alignItems    = Align.Center;
+            header.style.marginBottom  = 2;
 
-                        // Draw the property field for the current element
-                        EditorGUI.PropertyField(rect, element, GUIContent.none);
+            var opField = new PropertyField(operatorProp, "");
+            opField.style.flexShrink = 0;
+            opField.style.minWidth   = 60;
+            opField.style.maxWidth   = 80;
 
-                        if (GUI.Button(rect.RowPrepend(16).Padding(0, 4, 0, 0).Shift(0, 1), delBtnContent, EditorStyles.iconButton))
-                        {
-                            var indexScoped = index;
-                            delayedAction += () => entriesProp.DeleteArrayElementAtIndex(indexScoped);
-                        }
+            var lblBrace = new Label("{");
+            lblBrace.style.flexShrink  = 0;
+            lblBrace.style.paddingLeft = 4;
+            lblBrace.style.flexGrow    = 1;    // pushes the + button to the right
 
-                    },
-                    drawHeaderCallback = (Rect rect) => { },
-                    displayAdd = false,
-                    displayRemove = false,
-                    headerHeight = 0,
-                };
-            }
-            reorderableList.DoList(position.Padding(0, 10, 1, 3));
-            
-            delayedAction?.Invoke();
-            delayedAction = null;
-
-            var newBtnContent = EditorGUIUtility.IconContent("d_Toolbar Plus");
-            newBtnContent.tooltip = "Add case";
-            if (GUI.Button(plusBtnRect, newBtnContent))
+            var addBtn = new Button(() =>
             {
                 entriesProp.InsertArrayElementAtIndex(entriesProp.arraySize);
                 ResetChild(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
+                entriesProp.serializedObject.ApplyModifiedProperties();
+            });
+            addBtn.style.flexShrink     = 0;
+            addBtn.style.width          = 20;
+            addBtn.style.height         = 20;
+            addBtn.style.paddingLeft    = 0;
+            addBtn.style.paddingRight   = 0;
+            addBtn.style.paddingTop     = 0;
+            addBtn.style.paddingBottom  = 0;
+            var addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus");
+            addBtn.Add(new Image { image = addIcon.image as Texture2D, scaleMode = ScaleMode.ScaleToFit, style = { flexGrow = 1 } });
+            addBtn.tooltip = "Add case";
+
+            header.Add(opField);
+            header.Add(lblBrace);
+            header.Add(addBtn);
+            root.Add(header);
+
+            // ── body: indented list of items ─────────────────────────────
+            var body = new VisualElement();
+            body.style.paddingLeft = 10;
+            root.Add(body);
+
+            void RebuildList()
+            {
+                body.Clear();
+                var so = entriesProp.serializedObject;
+                for (int i = 0; i < entriesProp.arraySize; i++)
+                {
+                    var idx         = i;
+                    var elemProp    = entriesProp.GetArrayElementAtIndex(i);
+
+                    var row = new VisualElement();
+                    row.style.flexDirection = FlexDirection.Row;
+                    row.style.alignItems   = Align.Center;
+                    row.style.marginBottom = 2;
+
+                    var delBtn = new Button();
+                    delBtn.style.flexShrink    = 0;
+                    delBtn.style.width         = 16;
+                    delBtn.style.height        = 16;
+                    delBtn.style.paddingLeft   = 0;
+                    delBtn.style.paddingRight  = 0;
+                    delBtn.style.paddingTop    = 0;
+                    delBtn.style.paddingBottom = 0;
+                    var delIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
+                    delBtn.Add(new Image { image = delIcon.image as Texture2D, scaleMode = ScaleMode.ScaleToFit, style = { flexGrow = 1 } });
+                    delBtn.tooltip = "Delete";
+                    delBtn.clicked += () =>
+                    {
+                        entriesProp.DeleteArrayElementAtIndex(idx);
+                        entriesProp.serializedObject.ApplyModifiedProperties();
+                        RebuildList();
+                    };
+
+                    var elem = new PropertyField(elemProp, "");
+                    elem.style.flexGrow   = 1;
+                    elem.style.flexShrink = 1;
+                    elem.Bind(so);
+
+                    row.Add(delBtn);
+                    row.Add(elem);
+                    body.Add(row);
+                }
             }
 
-            lastLine.CutLeft(lastLine.width - 10, out lastLine);
-            GUI.Label(lastLine, new GUIContent("}"));
+            RebuildList();
 
+            // TrackPropertyValue on the array fires only when the array size changes,
+            // not on every value edit inside the elements (avoids flickering).
+            root.TrackPropertyValue(entriesProp, _ => RebuildList());
+
+            // ── footer: closing brace ─────────────────────────────────────
+            var footer = new Label("}");
+            footer.style.paddingLeft = 4;
+            footer.style.marginTop   = 2;
+            root.Add(footer);
+
+            return root;
         }
-        private void ResetChild(SerializedProperty serializedProperty)
+
+        private static void ResetChild(SerializedProperty serializedProperty)
         {
             foreach (SerializedProperty child in serializedProperty)
             {
                 if (child.propertyType == SerializedPropertyType.ManagedReference)
-                {
                     child.managedReferenceValue = null;
-                }
                 else if (child.propertyType == SerializedPropertyType.ArraySize)
-                {
                     child.arraySize = 0;
-                }
             }
         }
     }
