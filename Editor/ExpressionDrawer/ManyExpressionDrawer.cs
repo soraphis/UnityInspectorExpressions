@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(ManyBoolExpression))]
+    [CustomPropertyDrawer(typeof(ManyBoolExpression<>))]
     public class ManyBoolExpressionDrawer : PropertyDrawer
     {
         const string s_OperatorPropertyName = "m_Operator";

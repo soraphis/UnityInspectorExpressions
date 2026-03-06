@@ -6,8 +6,8 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(IntToFloatCastExpression))]
-    [CustomPropertyDrawer(typeof(FloatToIntCastExpression))]
+    [CustomPropertyDrawer(typeof(IntToFloatCastExpression<>))]
+    [CustomPropertyDrawer(typeof(FloatToIntCastExpression<>))]
     public class CastExpressionDrawer : PropertyDrawer
     {
         const string s_InnerPropertyName = "m_InnerExpr";
@@ -31,7 +31,7 @@ namespace UnityInspectorExpressions.Expressions
         }
     }
 
-    [CustomPropertyDrawer(typeof(ComponentToGameObjectExpression))]
+    [CustomPropertyDrawer(typeof(ComponentToGameObjectExpression<>))]
     public class PropertyAccessExpressionDrawer : PropertyDrawer
     {
         const string s_InnerPropertyName = "m_InnerExpr";

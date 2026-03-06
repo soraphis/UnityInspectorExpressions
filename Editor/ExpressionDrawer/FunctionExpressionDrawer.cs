@@ -7,10 +7,9 @@ using UnityInspectorExpressions.Expressions.Base;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(BoolResultFunctionExpression<,>))]
-    
-    [CustomPropertyDrawer(typeof(IntResultFunctionExpression<>))]
+    [CustomPropertyDrawer(typeof(BoolResultFunctionExpression<,,>))]
     [CustomPropertyDrawer(typeof(IntResultFunctionExpression<,>))]
+    [CustomPropertyDrawer(typeof(IntResultFunctionExpression<,,>))]
     public class FunctionExpressionDrawer : PropertyDrawer
     {
         const string s_ObjectPropertyName   = "m_Object";

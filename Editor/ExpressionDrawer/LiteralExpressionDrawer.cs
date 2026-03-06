@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(LiteralBoolExpression))]
+    [CustomPropertyDrawer(typeof(LiteralBoolExpression<>))]
     public class BoolLiteralExpressionDrawer : PropertyDrawer
     {
         const string s_PropertyName = "m_Literal";
@@ -32,11 +32,11 @@ namespace UnityInspectorExpressions.Expressions
         }
     }
 
-    [CustomPropertyDrawer(typeof(LiteralFloatExpression))]
-    [CustomPropertyDrawer(typeof(LiteralIntExpression))]
-    [CustomPropertyDrawer(typeof(LiteralComponentExpression))]
-    [CustomPropertyDrawer(typeof(LiteralGameObjectExpression))]
-    [CustomPropertyDrawer(typeof(LiteralStringExpression))]
+    [CustomPropertyDrawer(typeof(LiteralFloatExpression<>))]
+    [CustomPropertyDrawer(typeof(LiteralIntExpression<>))]
+    [CustomPropertyDrawer(typeof(LiteralComponentExpression<>))]
+    [CustomPropertyDrawer(typeof(LiteralGameObjectExpression<>))]
+    [CustomPropertyDrawer(typeof(LiteralStringExpression<>))]
     public class LiteralExpressionDrawer : PropertyDrawer
     {
         const string s_PropertyName = "m_Literal";

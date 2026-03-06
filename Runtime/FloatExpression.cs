@@ -5,27 +5,26 @@ using UnityEngine;
 namespace UnityInspectorExpressions.Expressions
 {
 	[System.Serializable]
-	public struct FloatExpression : IExpression<float>, ISerializationCallbackReceiver
+	public struct FloatExpression<TCtx> : IExpression<float, TCtx>, ISerializationCallbackReceiver
 	{
-		[SerializeReference] internal FloatExpressionBase m_ExpressionRef;
+		[SerializeReference] internal FloatExpressionBase<TCtx> m_ExpressionRef;
 
-		public FloatExpression(FloatExpressionBase @ref) : this()
+		public FloatExpression(FloatExpressionBase<TCtx> @ref) : this()
 		{
 			m_ExpressionRef = @ref;
 		}
 
-		public float Evaluate(Dictionary<int, object> ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
-		public float Evaluate() => ((IExpression<float>)this).DefaultEvaluate();
+		public float Evaluate(TCtx ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
 
-		
+
 		public void OnAfterDeserialize()
 		{
-			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralFloatExpression(0f);
+			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralFloatExpression<TCtx>(0f);
 		}
 
 		public void OnBeforeSerialize()
 		{
-			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralFloatExpression(0f);
+			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralFloatExpression<TCtx>(0f);
 		}
 	}
 }

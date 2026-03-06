@@ -5,27 +5,26 @@ using UnityEngine;
 namespace UnityInspectorExpressions.Expressions
 {
 	[System.Serializable]
-	public struct GameObjectExpression : IExpression<GameObject>, ISerializationCallbackReceiver
+	public struct GameObjectExpression<TCtx> : IExpression<GameObject, TCtx>, ISerializationCallbackReceiver
 	{
-		[SerializeReference] internal GameObjectExpressionBase m_ExpressionRef;
+		[SerializeReference] internal GameObjectExpressionBase<TCtx> m_ExpressionRef;
 
-		public GameObjectExpression(GameObjectExpressionBase @ref) : this()
+		public GameObjectExpression(GameObjectExpressionBase<TCtx> @ref) : this()
 		{
 			m_ExpressionRef = @ref;
 		}
 
-		public GameObject Evaluate(Dictionary<int, object> ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
-		public GameObject Evaluate() => ((IExpression<GameObject>)this).DefaultEvaluate();
+		public GameObject Evaluate(TCtx ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
 
 
 		public void OnAfterDeserialize()
 		{
-			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralGameObjectExpression(default);
+			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralGameObjectExpression<TCtx>(default);
 		}
 
 		public void OnBeforeSerialize()
 		{
-			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralGameObjectExpression(default);
+			if (m_ExpressionRef == null) m_ExpressionRef = new LiteralGameObjectExpression<TCtx>(default);
 		}
 	}
 }

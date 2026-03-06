@@ -1,24 +1,55 @@
-﻿using Editor.Helpers;
+﻿using System.Linq;
+using System.Runtime.Remoting.Contexts;
+using Editor.Helpers;
+using Unity.Properties;
+using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using UnityInspectorExpressions.Expressions.Base;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(ContextGameObjectExpression))]
+
+    [CustomPropertyDrawer(typeof(FromContextGameObjectExpression<>))]
     public class ContextExpressionDrawer : PropertyDrawer
     {
-        const string s_PropertyName = "m_ContextSlot";
+        const string s_PropertyName = "m_PathToProperty";
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var literalProp = property.FindPropertyRelative(s_PropertyName);
-
+            var genericType = fieldInfo.FieldType.GenericTypeArguments.FirstOrDefault(x =>
+                x.GetCustomAttributes(typeof(GeneratePropertyBagAttribute), true).Any()
+            );
+            
             var row = CustomStyles.MakeRow();
-            row.Add(CustomStyles.MakeLabel("Context["));
-            row.Add(new PropertyField(literalProp, "").WithFlex(1, 1));
-            row.Add(CustomStyles.MakeLabel("]"));
+
+            if (genericType != null)
+            {
+                // collect all members of the type with [CreateProperty] and show them as dropdown:
+                var propertyInfos = genericType.GetProperties()
+                    .Where(x => x.GetCustomAttributes(typeof(CreatePropertyAttribute), true).Any())
+                    .Select(x => x.Name)
+                    .Append("None")
+                    .ToList();
+
+
+                var currentValue = property.FindPropertyRelative(s_PropertyName).stringValue;
+                
+                var field = new DropdownField(propertyInfos, string.IsNullOrEmpty(currentValue) ? "None" : currentValue);
+                field.RegisterValueChangedCallback(evt =>
+                {
+                    property.FindPropertyRelative(s_PropertyName).stringValue = evt.newValue;
+                    property.serializedObject.ApplyModifiedProperties();
+                });
+                row.Add(field);
+            }
+            else
+            {
+                // just show string field:
+                var field = new PropertyField(property.FindPropertyRelative(s_PropertyName), "");
+                row.Add(field);
+            }
+
             return row;
         }
     }

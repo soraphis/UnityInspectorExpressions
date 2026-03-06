@@ -8,10 +8,10 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(BinaryBoolExpression))]
-    [CustomPropertyDrawer(typeof(GameObjectRelationalExpression))]
-    [CustomPropertyDrawer(typeof(FloatRelationalExpression))]
-    [CustomPropertyDrawer(typeof(IntRelationalExpression))]
+    [CustomPropertyDrawer(typeof(BinaryBoolExpression<>))]
+    [CustomPropertyDrawer(typeof(GameObjectRelationalExpression<>))]
+    [CustomPropertyDrawer(typeof(FloatRelationalExpression<>))]
+    [CustomPropertyDrawer(typeof(IntRelationalExpression<>))]
     public class BinaryBoolExpressionDrawer : PropertyDrawer
     {
         const string s_InnerProperty1Name   = "m_InnerExpr1";
@@ -54,8 +54,8 @@ namespace UnityInspectorExpressions.Expressions
         }
     }
 
-    [CustomPropertyDrawer(typeof(BinaryFloatExpression))]
-    [CustomPropertyDrawer(typeof(BinaryIntExpression))]
+    [CustomPropertyDrawer(typeof(BinaryFloatExpression<>))]
+    [CustomPropertyDrawer(typeof(BinaryIntExpression<>))]
     public class BinaryFloatExpressionDrawer : PropertyDrawer
     {
         const string s_InnerProperty1Name   = "m_InnerExpr1";

@@ -7,14 +7,14 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(BoolExpression))]
-    [CustomPropertyDrawer(typeof(FloatExpression))]
-    [CustomPropertyDrawer(typeof(IntExpression))]
-    [CustomPropertyDrawer(typeof(Vector2Expression))]
-    [CustomPropertyDrawer(typeof(Vector3Expression))]
-    [CustomPropertyDrawer(typeof(ComponentExpression))]
-    [CustomPropertyDrawer(typeof(GameObjectExpression))]
-    [CustomPropertyDrawer(typeof(StringExpression))]
+    [CustomPropertyDrawer(typeof(BoolExpression<>))]
+    [CustomPropertyDrawer(typeof(FloatExpression<>))]
+    [CustomPropertyDrawer(typeof(IntExpression<>))]
+    [CustomPropertyDrawer(typeof(Vector2Expression<>))]
+    [CustomPropertyDrawer(typeof(Vector3Expression<>))]
+    [CustomPropertyDrawer(typeof(ComponentExpression<>))]
+    [CustomPropertyDrawer(typeof(GameObjectExpression<>))]
+    [CustomPropertyDrawer(typeof(StringExpression<>))]
     public class ExpressionDrawer : PropertyDrawer
     {
         const string s_PropertyName = "m_ExpressionRef";
@@ -49,7 +49,13 @@ namespace UnityInspectorExpressions.Expressions
 
             moreBtn.clicked += () =>
             {
-                var menu = ManagedReferenceDrawerHelper.TypeSelectorMenu(conditionProp, new Rect());
+                // fieldInfo.FieldType is the closed generic, e.g. BoolExpression<TriggerCtx>
+                // → extract TCtx so the type-selector can close open-generic derived types
+                var ctxArgs = fieldInfo.FieldType.IsGenericType
+                    ? fieldInfo.FieldType.GetGenericArguments()
+                    : null;
+
+                var menu = ManagedReferenceDrawerHelper.TypeSelectorMenu(conditionProp, new Rect(), ctxArgs);
                 menu.AddSeparator("");
 
                 var wrappables = ReflectionHelper.GetAllGenericImplementationsTypes(

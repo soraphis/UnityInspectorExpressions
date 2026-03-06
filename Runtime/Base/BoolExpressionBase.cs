@@ -7,37 +7,35 @@ namespace UnityInspectorExpressions.Expressions.Base
 {
 
     [System.Serializable]
-    public abstract class BoolExpressionBase : IExpression<bool>, IWrapable<UnaryBoolExpression>, IWrapable<BinaryBoolExpression>, IWrapable<ManyBoolExpression>
+    public abstract class BoolExpressionBase<TCtx> : IExpression<bool, TCtx>, IWrapable<UnaryBoolExpression<TCtx>>, IWrapable<BinaryBoolExpression<TCtx>>, IWrapable<ManyBoolExpression<TCtx>>
     {
-        public abstract bool Evaluate(Dictionary<int, object> ctx);
-        public bool Evaluate() => ((IExpression<bool>)this).DefaultEvaluate();
+        public abstract bool Evaluate(TCtx ctx);
 
-
-        UnaryBoolExpression IWrapable<UnaryBoolExpression>.Wrap() => new UnaryBoolExpression() { m_InnerExpr = new() { m_ExpressionRef = this } };
-        BinaryBoolExpression IWrapable<BinaryBoolExpression>.Wrap() => new BinaryBoolExpression() { m_InnerExpr1 = new() { m_ExpressionRef = this } };
-        ManyBoolExpression IWrapable<ManyBoolExpression>.Wrap() => new ManyBoolExpression() { m_InnerExpr = new() { new() { m_ExpressionRef = this } } };
+        UnaryBoolExpression<TCtx> IWrapable<UnaryBoolExpression<TCtx>>.Wrap() => new UnaryBoolExpression<TCtx>() { m_InnerExpr = new() { m_ExpressionRef = this } };
+        BinaryBoolExpression<TCtx> IWrapable<BinaryBoolExpression<TCtx>>.Wrap() => new BinaryBoolExpression<TCtx>() { m_InnerExpr1 = new() { m_ExpressionRef = this } };
+        ManyBoolExpression<TCtx> IWrapable<ManyBoolExpression<TCtx>>.Wrap() => new ManyBoolExpression<TCtx>() { m_InnerExpr = new() { new() { m_ExpressionRef = this } } };
     }
     [System.Serializable]
     [ExpressionLabel("Bool/Literal")]
-    public class LiteralBoolExpression : BoolExpressionBase
+    public class LiteralBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         [SerializeField] internal bool m_Literal;
         public LiteralBoolExpression() { }
         public LiteralBoolExpression(bool literal) { m_Literal = literal; }
-        public override bool Evaluate(Dictionary<int, object> ctx) => m_Literal;
+        public override bool Evaluate(TCtx ctx) => m_Literal;
     }
 
     [System.Serializable]
     [ExpressionLabel("Bool/Unary")]
-    public class UnaryBoolExpression : BoolExpressionBase
+    public class UnaryBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         public enum UnaryOperator
         {
             Not
         }
-        [SerializeField] internal BoolExpression m_InnerExpr;
+        [SerializeField] internal BoolExpression<TCtx> m_InnerExpr;
         [SerializeField] internal UnaryOperator  m_Operator;
-        public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        public override bool Evaluate(TCtx ctx) => m_Operator switch
         {
             UnaryOperator.Not => !m_InnerExpr.Evaluate(ctx),
             _ => throw new NotImplementedException(),
@@ -45,7 +43,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
     [System.Serializable]
     [ExpressionLabel("Bool/Binary")]
-    public class BinaryBoolExpression : BoolExpressionBase
+    public class BinaryBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         public enum BinaryOperator
         {
@@ -55,10 +53,10 @@ namespace UnityInspectorExpressions.Expressions.Base
             OR,
             XOR
         }
-        [SerializeField] internal BoolExpression  m_InnerExpr1;
-        [SerializeField] internal BoolExpression  m_InnerExpr2;
+        [SerializeField] internal BoolExpression<TCtx>  m_InnerExpr1;
+        [SerializeField] internal BoolExpression<TCtx>  m_InnerExpr2;
         [SerializeField] internal BinaryOperator  m_Operator;
-        public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        public override bool Evaluate(TCtx ctx) => m_Operator switch
         {
             BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
             BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
@@ -71,16 +69,16 @@ namespace UnityInspectorExpressions.Expressions.Base
 
     [System.Serializable]
     [ExpressionLabel("Bool/Many")]
-    public class ManyBoolExpression : BoolExpressionBase
+    public class ManyBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         public enum ManyOperator
         {
             All,
             Any,
         }
-        [SerializeField] internal List<BoolExpression> m_InnerExpr;
-        [SerializeField] internal ManyOperator         m_Operator;
-        public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        [SerializeField] internal List<BoolExpression<TCtx>> m_InnerExpr;
+        [SerializeField] internal ManyOperator               m_Operator;
+        public override bool Evaluate(TCtx ctx) => m_Operator switch
         {
             ManyOperator.All => m_InnerExpr.All(x => x.Evaluate(ctx)),
             ManyOperator.Any => m_InnerExpr.Any(x => x.Evaluate(ctx)),
@@ -89,7 +87,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [ExpressionLabel("From Float/Relational")]
-    public class FloatRelationalExpression : BoolExpressionBase
+    public class FloatRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         public enum BinaryOperator
         {
@@ -102,10 +100,10 @@ namespace UnityInspectorExpressions.Expressions.Base
             [InspectorName("\u2248")] Approx,
 
         }
-        [SerializeField] internal FloatExpression  m_InnerExpr1;
-        [SerializeField] internal FloatExpression  m_InnerExpr2;
+        [SerializeField] internal FloatExpression<TCtx>  m_InnerExpr1;
+        [SerializeField] internal FloatExpression<TCtx>  m_InnerExpr2;
         [SerializeField] internal BinaryOperator  m_Operator;
-        public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+        public override bool Evaluate(TCtx ctx) => m_Operator switch
         {
             BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
             BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
@@ -119,7 +117,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [ExpressionLabel("From Int/Relational")]
-    public class IntRelationalExpression : BoolExpressionBase
+    public class IntRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
 	    public enum BinaryOperator
 	    {
@@ -131,10 +129,10 @@ namespace UnityInspectorExpressions.Expressions.Base
 		    [InspectorName("<=")] LessEqual,
 
 	    }
-	    [SerializeField] internal IntExpression m_InnerExpr1;
-	    [SerializeField] internal IntExpression m_InnerExpr2;
+	    [SerializeField] internal IntExpression<TCtx> m_InnerExpr1;
+	    [SerializeField] internal IntExpression<TCtx> m_InnerExpr2;
 	    [SerializeField] internal BinaryOperator  m_Operator;
-	    public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+	    public override bool Evaluate(TCtx ctx) => m_Operator switch
 	    {
 		    BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
 		    BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
@@ -147,7 +145,7 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [ExpressionLabel("From GameObject/Relational")]
-    public class GameObjectRelationalExpression : BoolExpressionBase
+    public class GameObjectRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
 	    public enum BinaryOperator
 	    {
@@ -155,10 +153,10 @@ namespace UnityInspectorExpressions.Expressions.Base
 		    [InspectorName("!=")] Unequal,
 		    [InspectorName("Is Child Of")] IsChildOf,
 	    }
-	    [SerializeField] internal GameObjectExpression m_InnerExpr1;
-	    [SerializeField] internal GameObjectExpression m_InnerExpr2;
-	    [SerializeField] internal BinaryOperator       m_Operator;
-	    public override bool Evaluate(Dictionary<int, object> ctx) => m_Operator switch
+	    [SerializeField] internal GameObjectExpression<TCtx> m_InnerExpr1;
+	    [SerializeField] internal GameObjectExpression<TCtx> m_InnerExpr2;
+	    [SerializeField] internal BinaryOperator             m_Operator;
+	    public override bool Evaluate(TCtx ctx) => m_Operator switch
 	    {
 		    BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
 		    BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
@@ -168,16 +166,16 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
     
 
-    public abstract class BoolResultFunctionExpression<TObj, TArg0> : BoolExpressionBase
+    public abstract class BoolResultFunctionExpression<TCtx, TObj, TArg0> : BoolExpressionBase<TCtx>
     {
 	    [SerializeField] internal TObj m_Object;
 	    [SerializeField] internal TArg0 m_Argument;
     }
     
     [ExpressionLabel("From GameObject/Fn: Compare Tag")]
-    public class GameObject_CompareTag_FunctionExpression : BoolResultFunctionExpression<GameObjectExpression, StringExpression>
+    public class GameObject_CompareTag_FunctionExpression<TCtx> : BoolResultFunctionExpression<TCtx, GameObjectExpression<TCtx>, StringExpression<TCtx>>
 	{
-	    public override bool Evaluate(Dictionary<int, object> ctx)
+	    public override bool Evaluate(TCtx ctx)
 	    {
 		    var go = m_Object.Evaluate(ctx);
 		    var tag = m_Argument.Evaluate(ctx);

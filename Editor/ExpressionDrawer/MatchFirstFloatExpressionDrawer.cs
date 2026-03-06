@@ -7,11 +7,13 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(MatchFirstFloatExpression))]
-    [CustomPropertyDrawer(typeof(MatchFirstIntExpression))]
-    [CustomPropertyDrawer(typeof(MatchFirstStringExpression))]
-    [CustomPropertyDrawer(typeof(MatchFirstComponentExpression))]
-    [CustomPropertyDrawer(typeof(MatchFirstGameObjectExpression))]
+    [CustomPropertyDrawer(typeof(MatchFirstFloatExpression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstIntExpression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstStringExpression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstComponentExpression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstGameObjectExpression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstVector2Expression<>))]
+    [CustomPropertyDrawer(typeof(MatchFirstVector3Expression<>))]
     public class MatchFirstFloatExpressionDrawer : PropertyDrawer
     {
         const string s_DefaultExprPropertyName = "m_DefaultExpr";
@@ -127,10 +129,10 @@ namespace UnityInspectorExpressions.Expressions
     //                  MATCH-ENTRY DRAWER
     // ///////////////////////////////////////////////////////////////////
 
-    [CustomPropertyDrawer(typeof(MatchFirstFloatExpression.MatchEntry))]
-    [CustomPropertyDrawer(typeof(MatchFirstIntExpression.MatchEntry))]
-    [CustomPropertyDrawer(typeof(MatchFirstComponentExpression.MatchEntry))]
-    [CustomPropertyDrawer(typeof(MatchFirstStringExpression.MatchEntry))]
+    [CustomPropertyDrawer(typeof(MatchFirstFloatExpression<>.MatchEntry))]
+    [CustomPropertyDrawer(typeof(MatchFirstIntExpression<>.MatchEntry))]
+    [CustomPropertyDrawer(typeof(MatchFirstComponentExpression<>.MatchEntry))]
+    [CustomPropertyDrawer(typeof(MatchFirstStringExpression<>.MatchEntry))]
     public class MatchFirstFloatExpression_MatchEntryDrawer : PropertyDrawer
     {
         const string s_ConditionPropertyName = "m_Condition";

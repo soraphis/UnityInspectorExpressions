@@ -6,9 +6,11 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(UnaryBoolExpression))]
-    [CustomPropertyDrawer(typeof(UnaryFloatExpression))]
-    [CustomPropertyDrawer(typeof(UnaryIntExpression))]
+    [CustomPropertyDrawer(typeof(UnaryBoolExpression<>))]
+    [CustomPropertyDrawer(typeof(UnaryFloatExpression<>))]
+    [CustomPropertyDrawer(typeof(UnaryIntExpression<>))]
+    [CustomPropertyDrawer(typeof(UnaryVector2Expression<>))]
+    [CustomPropertyDrawer(typeof(UnaryVector3Expression<>))]
     public class UnaryExpressionDrawer : PropertyDrawer
     {
         const string s_InnerPropertyName    = "m_InnerExpr";
