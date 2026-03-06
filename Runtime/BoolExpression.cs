@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace UnityInspectorExpressions.Expressions
 
         public bool Evaluate(Dictionary<int, object> ctx = null) => m_ExpressionRef == null || m_ExpressionRef.Evaluate(ctx);
         public bool Evaluate() => ((IExpression<bool>)this).DefaultEvaluate();
+        public bool EvaluateWith(Action<Dictionary<int, object>> fillctx) => ((IExpression<bool>)this).DefaultEvaluateWithContext(fillctx);
 
         
         public void OnAfterDeserialize()

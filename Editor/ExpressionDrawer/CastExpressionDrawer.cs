@@ -1,4 +1,3 @@
-using System;
 using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
@@ -15,27 +14,19 @@ namespace UnityInspectorExpressions.Expressions
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
+            var exprProp  = property.FindPropertyRelative(s_InnerPropertyName);
+            var typename  = fieldInfo.FieldType.Name;
+            var castName  = typename.Substring(0, typename.Length - "ExpressionBase".Length);
 
-            var typename = fieldInfo.FieldType.Name;
-            var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
-
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.flexGrow = 1;
+            var row = CustomStyles.MakeRow();
 
             var lbl = new Label($"({castName.ToLower()})");
             lbl.style.flexShrink = 0;
-            lbl.style.minWidth = 40;
+            lbl.style.minWidth   = 40;
             lbl.style.paddingRight = 2;
 
-            var inner = new PropertyField(exprProp, "");
-            inner.style.flexGrow = 1;
-            inner.style.flexShrink = 1;
-
             row.Add(lbl);
-            row.Add(inner);
+            row.Add(new PropertyField(exprProp, "").WithFlex(1, 1));
             return row;
         }
     }
@@ -48,25 +39,17 @@ namespace UnityInspectorExpressions.Expressions
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var exprProp = property.FindPropertyRelative(s_InnerPropertyName);
-
             var typename = fieldInfo.FieldType.Name;
             var castName = typename.Substring(0, typename.Length - "ExpressionBase".Length);
 
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.flexGrow = 1;
-
-            var inner = new PropertyField(exprProp, "");
-            inner.style.flexGrow = 1;
-            inner.style.flexShrink = 1;
+            var row = CustomStyles.MakeRow();
 
             var lbl = new Label($".{castName.ToLower()}");
-            lbl.style.flexShrink = 0;
-            lbl.style.minWidth = 40;
+            lbl.style.flexShrink  = 0;
+            lbl.style.minWidth    = 40;
             lbl.style.paddingLeft = 2;
 
-            row.Add(inner);
+            row.Add(new PropertyField(exprProp, "").WithFlex(1, 1));
             row.Add(lbl);
             return row;
         }

@@ -1,3 +1,4 @@
+using Editor.Helpers;
 using System;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
@@ -23,10 +24,9 @@ namespace UnityInspectorExpressions.Expressions
             root.style.flexGrow = 1;
 
             // ── header row:  [operator] {    [+] ──────────────────────────
-            var header = new VisualElement();
-            header.style.flexDirection = FlexDirection.Row;
-            header.style.alignItems    = Align.Center;
-            header.style.marginBottom  = 2;
+            var header = CustomStyles.MakeRow();
+            header.style.marginBottom = 2;
+            header.style.flexGrow     = 0;   // don't grow the header itself
 
             var opField = new PropertyField(operatorProp, "");
             opField.style.flexShrink = 0;
@@ -38,22 +38,14 @@ namespace UnityInspectorExpressions.Expressions
             lblBrace.style.paddingLeft = 4;
             lblBrace.style.flexGrow    = 1;    // pushes the + button to the right
 
-            var addBtn = new Button(() =>
+            var addBtn = CustomStyles.MakeIconButton("d_Toolbar Plus");
+            addBtn.tooltip = "Add case";
+            addBtn.clicked += () =>
             {
                 entriesProp.InsertArrayElementAtIndex(entriesProp.arraySize);
-                ResetChild(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
+                CustomStyles.ResetSerializedChildren(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
                 entriesProp.serializedObject.ApplyModifiedProperties();
-            });
-            addBtn.style.flexShrink     = 0;
-            addBtn.style.width          = 20;
-            addBtn.style.height         = 20;
-            addBtn.style.paddingLeft    = 0;
-            addBtn.style.paddingRight   = 0;
-            addBtn.style.paddingTop     = 0;
-            addBtn.style.paddingBottom  = 0;
-            var addIcon = EditorGUIUtility.IconContent("d_Toolbar Plus");
-            addBtn.Add(new Image { image = addIcon.image as Texture2D, scaleMode = ScaleMode.ScaleToFit, style = { flexGrow = 1 } });
-            addBtn.tooltip = "Add case";
+            };
 
             header.Add(opField);
             header.Add(lblBrace);
@@ -71,25 +63,14 @@ namespace UnityInspectorExpressions.Expressions
                 var so = entriesProp.serializedObject;
                 for (int i = 0; i < entriesProp.arraySize; i++)
                 {
-                    var idx         = i;
-                    var elemProp    = entriesProp.GetArrayElementAtIndex(i);
+                    var idx      = i;
+                    var elemProp = entriesProp.GetArrayElementAtIndex(i);
 
-                    var row = new VisualElement();
-                    row.style.flexDirection = FlexDirection.Row;
-                    row.style.alignItems   = Align.Center;
+                    var row = CustomStyles.MakeRow();
                     row.style.marginBottom = 2;
 
-                    var delBtn = new Button();
-                    delBtn.style.flexShrink    = 0;
-                    delBtn.style.width         = 16;
-                    delBtn.style.height        = 16;
-                    delBtn.style.paddingLeft   = 0;
-                    delBtn.style.paddingRight  = 0;
-                    delBtn.style.paddingTop    = 0;
-                    delBtn.style.paddingBottom = 0;
-                    var delIcon = EditorGUIUtility.IconContent("d_TreeEditor.Trash");
-                    delBtn.Add(new Image { image = delIcon.image as Texture2D, scaleMode = ScaleMode.ScaleToFit, style = { flexGrow = 1 } });
-                    delBtn.tooltip = "Delete";
+                    var delBtn = CustomStyles.MakeIconButton("d_TreeEditor.Trash", 16);
+                    delBtn.tooltip  = "Delete";
                     delBtn.clicked += () =>
                     {
                         entriesProp.DeleteArrayElementAtIndex(idx);
@@ -109,9 +90,6 @@ namespace UnityInspectorExpressions.Expressions
             }
 
             RebuildList();
-
-            // TrackPropertyValue on the array fires only when the array size changes,
-            // not on every value edit inside the elements (avoids flickering).
             root.TrackPropertyValue(entriesProp, _ => RebuildList());
 
             // ── footer: closing brace ─────────────────────────────────────
@@ -121,17 +99,6 @@ namespace UnityInspectorExpressions.Expressions
             root.Add(footer);
 
             return root;
-        }
-
-        private static void ResetChild(SerializedProperty serializedProperty)
-        {
-            foreach (SerializedProperty child in serializedProperty)
-            {
-                if (child.propertyType == SerializedPropertyType.ManagedReference)
-                    child.managedReferenceValue = null;
-                else if (child.propertyType == SerializedPropertyType.ArraySize)
-                    child.arraySize = 0;
-            }
         }
     }
 }

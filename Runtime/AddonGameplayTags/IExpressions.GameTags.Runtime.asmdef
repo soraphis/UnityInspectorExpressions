@@ -1,0 +1,17 @@
+{
+    "name": "IExpressions.GameTags.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c0361b76975d0724388d27c4ac75bea8",
+        "GUID:9004c14424fef864a82dadf5daf25b0c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

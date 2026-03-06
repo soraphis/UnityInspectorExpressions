@@ -34,31 +34,18 @@ namespace UnityInspectorExpressions.Expressions
             if (!string.IsNullOrEmpty(labelText))
             {
                 var lbl = new Label(labelText);
-                lbl.style.flexShrink    = 0;
-                lbl.style.height        = Length.Percent(100);
-                lbl.style.minWidth      = 100;
-                lbl.style.maxWidth      = 200;
-                lbl.style.paddingRight  = 4;
+                lbl.style.flexShrink     = 0;
+                lbl.style.height         = Length.Percent(100);
+                lbl.style.minWidth       = 100;
+                lbl.style.maxWidth       = 200;
+                lbl.style.paddingRight   = 4;
                 lbl.style.unityTextAlign = TextAnchor.MiddleLeft;
                 root.Add(lbl);
             }
 
             // ── "…" type-selector button ──────────────────────────────────
-            var moreBtn = new Button();
-            moreBtn.style.flexShrink    = 0;
-            moreBtn.style.width         = 16; 
-            moreBtn.style.height        = 20;
-            moreBtn.style.paddingLeft   = 0;
-            moreBtn.style.paddingRight  = 0;
-            moreBtn.style.paddingTop    = 0;
-            moreBtn.style.paddingBottom = 0;
-            moreBtn.style.marginRight   = 2;
-            moreBtn.Add(new Image
-            {
-                image     = EditorGUIUtility.IconContent("d_more").image as Texture2D,
-                scaleMode = ScaleMode.ScaleToFit,
-                style     = { flexGrow = 1 }
-            });
+            var moreBtn = CustomStyles.MakeIconButton("d_more", 16);
+            moreBtn.style.marginRight = 2;
 
             moreBtn.clicked += () =>
             {
@@ -112,9 +99,6 @@ namespace UnityInspectorExpressions.Expressions
             RebuildContent();
 
             // Only rebuild when the managed reference itself changes (type swap / null / wrap).
-            // TrackPropertyValue on a [SerializeReference] field fires when the reference is
-            // reassigned, but NOT on simple value-changes inside the referenced object, so the
-            // bool-toggle button (and any other child field) won't get torn down on every edit.
             root.TrackPropertyValue(conditionProp, _ => RebuildContent());
 
             return root;

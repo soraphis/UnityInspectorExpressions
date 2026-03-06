@@ -1,4 +1,5 @@
-﻿using UnityInspectorExpressions.Expressions.Base;
+﻿using Editor.Helpers;
+using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -26,35 +27,22 @@ namespace UnityInspectorExpressions.Expressions
             root.style.flexGrow = 1;
 
             // ── header row:  "match first {"    [+] ──────────────────────
-            var header = new VisualElement();
-            header.style.flexDirection = FlexDirection.Row;
-            header.style.alignItems    = Align.Center;
-            header.style.marginBottom  = 2;
+            var header = CustomStyles.MakeRow();
+            header.style.marginBottom = 2;
+            header.style.flexGrow     = 0;
 
             var lblHeader = new Label("match first {");
             lblHeader.style.flexGrow   = 1;
             lblHeader.style.flexShrink = 0;
 
-            var addBtn = new Button(() =>
+            var addBtn = CustomStyles.MakeIconButton("d_Toolbar Plus");
+            addBtn.tooltip  = "Add case";
+            addBtn.clicked += () =>
             {
                 entriesProp.InsertArrayElementAtIndex(entriesProp.arraySize);
-                ResetChild(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
+                CustomStyles.ResetSerializedChildren(entriesProp.GetArrayElementAtIndex(entriesProp.arraySize - 1));
                 entriesProp.serializedObject.ApplyModifiedProperties();
-            });
-            addBtn.style.flexShrink    = 0;
-            addBtn.style.width         = 20;
-            addBtn.style.height        = 20;
-            addBtn.style.paddingLeft   = 0;
-            addBtn.style.paddingRight  = 0;
-            addBtn.style.paddingTop    = 0;
-            addBtn.style.paddingBottom = 0;
-            addBtn.Add(new Image
-            {
-                image     = EditorGUIUtility.IconContent("d_Toolbar Plus").image as Texture2D,
-                scaleMode = ScaleMode.ScaleToFit,
-                style     = { flexGrow = 1 }
-            });
-            addBtn.tooltip = "Add case";
+            };
 
             header.Add(lblHeader);
             header.Add(addBtn);
@@ -74,26 +62,11 @@ namespace UnityInspectorExpressions.Expressions
                     var idx      = i;
                     var elemProp = entriesProp.GetArrayElementAtIndex(i);
 
-                    var row = new VisualElement();
-                    row.style.flexDirection = FlexDirection.Row;
-                    row.style.alignItems    = Align.Center;
-                    row.style.marginBottom  = 2;
+                    var row = CustomStyles.MakeRow();
+                    row.style.marginBottom = 2;
 
-                    var delBtn = new Button();
-                    delBtn.style.flexShrink    = 0;
-                    delBtn.style.width         = 16;
-                    delBtn.style.height        = 16;
-                    delBtn.style.paddingLeft   = 0;
-                    delBtn.style.paddingRight  = 0;
-                    delBtn.style.paddingTop    = 0;
-                    delBtn.style.paddingBottom = 0;
-                    delBtn.Add(new Image
-                    {
-                        image     = EditorGUIUtility.IconContent("d_TreeEditor.Trash").image as Texture2D,
-                        scaleMode = ScaleMode.ScaleToFit,
-                        style     = { flexGrow = 1 }
-                    });
-                    delBtn.tooltip = "Delete";
+                    var delBtn = CustomStyles.MakeIconButton("d_TreeEditor.Trash", 16);
+                    delBtn.tooltip  = "Delete";
                     delBtn.clicked += () =>
                     {
                         entriesProp.DeleteArrayElementAtIndex(idx);
@@ -116,22 +89,21 @@ namespace UnityInspectorExpressions.Expressions
             root.TrackPropertyValue(entriesProp, _ => RebuildList());
 
             // ── footer row:  "  default ⇒ [expr] }" ──────────────────────
-            var footer = new VisualElement();
-            footer.style.flexDirection = FlexDirection.Row;
-            footer.style.alignItems    = Align.Center;
-            footer.style.marginTop     = 2;
-            footer.style.paddingLeft   = 10;
+            var footer = CustomStyles.MakeRow();
+            footer.style.marginTop   = 2;
+            footer.style.paddingLeft = 10;
+            footer.style.flexGrow    = 0;
 
             var lblDefault = new Label("default");
-            lblDefault.style.flexShrink          = 0;
-            lblDefault.style.minWidth            = 55;
-            lblDefault.style.unityTextAlign      = TextAnchor.MiddleCenter;
+            lblDefault.style.flexShrink     = 0;
+            lblDefault.style.minWidth       = 55;
+            lblDefault.style.unityTextAlign = TextAnchor.MiddleCenter;
 
             var lblArrow = new Label("\u21D2");
-            lblArrow.style.flexShrink      = 0;
-            lblArrow.style.paddingLeft     = 4;
-            lblArrow.style.paddingRight    = 4;
-            lblArrow.style.unityTextAlign  = TextAnchor.MiddleCenter;
+            lblArrow.style.flexShrink     = 0;
+            lblArrow.style.paddingLeft    = 4;
+            lblArrow.style.paddingRight   = 4;
+            lblArrow.style.unityTextAlign = TextAnchor.MiddleCenter;
 
             var defaultField = new PropertyField(defaultProp, "");
             defaultField.style.flexGrow   = 1;
@@ -148,17 +120,6 @@ namespace UnityInspectorExpressions.Expressions
             root.Add(footer);
 
             return root;
-        }
-
-        private static void ResetChild(SerializedProperty serializedProperty)
-        {
-            foreach (SerializedProperty child in serializedProperty)
-            {
-                if (child.propertyType == SerializedPropertyType.ManagedReference)
-                    child.managedReferenceValue = null;
-                else if (child.propertyType == SerializedPropertyType.ArraySize)
-                    child.arraySize = 0;
-            }
         }
     }
 
@@ -180,10 +141,7 @@ namespace UnityInspectorExpressions.Expressions
             var condProp = property.FindPropertyRelative(s_ConditionPropertyName);
             var resuProp = property.FindPropertyRelative(s_ResultPropertyName);
 
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems    = Align.Center;
-            row.style.flexGrow      = 1;
+            var row = CustomStyles.MakeRow();
 
             var condField = new PropertyField(condProp, "");
             condField.style.flexGrow   = 1;
@@ -205,5 +163,4 @@ namespace UnityInspectorExpressions.Expressions
             return row;
         }
     }
-
 }

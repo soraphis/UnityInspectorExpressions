@@ -13,9 +13,8 @@ namespace UnityInspectorExpressions.Expressions.Base
         
         UnaryIntExpression IWrapable<UnaryIntExpression>.Wrap() => new UnaryIntExpression() { m_InnerExpr = new(this) };
         BinaryIntExpression IWrapable<BinaryIntExpression>.Wrap() => new BinaryIntExpression() { m_InnerExpr1 = new(this) };
-
     }
-
+    
     [System.Serializable]
     [ExpressionLabel("Int/Literal")]
     public class LiteralIntExpression : IntExpressionBase
@@ -24,7 +23,17 @@ namespace UnityInspectorExpressions.Expressions.Base
         public LiteralIntExpression() { }
         public LiteralIntExpression(int literal) { m_Literal = literal; }
         public override int Evaluate(Dictionary<int, object> ctx) => m_Literal;
+    }
 
+    public abstract class IntResultFunctionExpression<TObj> : IntExpressionBase
+    {
+        [SerializeField] protected internal TObj m_Object;
+    }
+    
+    public abstract class IntResultFunctionExpression<TObj, TArg0> : IntExpressionBase
+    {
+        [SerializeField] protected internal TObj m_Object;
+        [SerializeField] protected internal TArg0 m_Argument;
     }
 
 

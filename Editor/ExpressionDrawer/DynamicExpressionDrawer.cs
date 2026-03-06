@@ -15,22 +15,15 @@ namespace UnityInspectorExpressions.Expressions
 		{
 			var literalProp = property.FindPropertyRelative(s_PropertyName);
 
-			var row = new VisualElement();
-			row.style.flexDirection = FlexDirection.Row;
-			row.style.alignItems = Align.Center;
-			row.style.flexGrow = 1;
+			var row = CustomStyles.MakeRow();
 
 			var lbl = new Label("dyn:");
 			lbl.style.flexShrink = 0;
-			lbl.style.minWidth = 30;
-			lbl.style.maxWidth = 50;
-
-			var field = new PropertyField(literalProp, "");
-			field.style.flexGrow = 1;
-			field.style.flexShrink = 1;
+			lbl.style.minWidth   = 30;
+			lbl.style.maxWidth   = 50;
 
 			row.Add(lbl);
-			row.Add(field);
+			row.Add(new PropertyField(literalProp, "").WithFlex(1, 1));
 			return row;
 		}
 	}
@@ -44,10 +37,7 @@ namespace UnityInspectorExpressions.Expressions
 		public override VisualElement CreatePropertyGUI(SerializedProperty property)
 		{
 			var literalProp = property.FindPropertyRelative(s_PropertyName);
-			var field = new PropertyField(literalProp, "");
-			field.style.flexGrow = 1;
-			field.style.flexShrink = 1;
-			return field;
+			return new PropertyField(literalProp, "").WithFlex(1, 1);
 		}
 	}
 }

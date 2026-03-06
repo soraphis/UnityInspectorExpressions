@@ -22,6 +22,15 @@ namespace UnityInspectorExpressions.Expressions.Base
         public LiteralGameObjectExpression(GameObject literal) { m_Literal = literal; }
         public override GameObject Evaluate(Dictionary<int, object> ctx) => m_Literal;
     }
+    
+    [System.Serializable]
+    [ExpressionLabel("GameObject/Context")]
+    public class ContextGameObjectExpression : GameObjectExpressionBase
+    {
+        [SerializeField] internal IntExpression m_ContextSlot;
+        public ContextGameObjectExpression() { }
+        public override GameObject Evaluate(Dictionary<int, object> ctx) => ctx[m_ContextSlot.Evaluate(ctx)] as GameObject;
+    }
 
     [System.Serializable]
     [ExpressionLabel("GameObject/Dynamic Slot")]

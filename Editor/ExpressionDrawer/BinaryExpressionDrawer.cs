@@ -8,27 +8,6 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    public class ExpressionHighlightState
-    {
-        private static VisualElement selected;
-        
-        public static void SetSelected(VisualElement element)
-        {
-            if (selected != null)
-            {
-                selected.style.color = StyleKeyword.Null;
-                selected.style.backgroundColor = StyleKeyword.Null;
-            }
-            selected = element;
-            if (selected != null)
-            {
-                selected.style.color = Color.cyan;
-                selected.style.backgroundColor = Color.cyan.WithAlpha(0.2f);
-            }
-        }
-    }
-
-
     [CustomPropertyDrawer(typeof(BinaryBoolExpression))]
     [CustomPropertyDrawer(typeof(GameObjectRelationalExpression))]
     [CustomPropertyDrawer(typeof(FloatRelationalExpression))]
@@ -47,61 +26,31 @@ namespace UnityInspectorExpressions.Expressions
 
             var root = new VisualElement();
             root.style.flexGrow = 1;
-            root.style.color = Color.white;
-            
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.flexGrow = 1;
+            root.style.color    = Color.white;
 
-            row.RegisterCallback((MouseOverEvent evt) =>
-            {
-                ExpressionHighlightState.SetSelected(row);
-                evt.StopPropagation();
-            });
-            row.RegisterCallback( ( MouseLeaveEvent evt ) =>
-            {
-                ExpressionHighlightState.SetSelected(null);
-            });
-
-            var lblOpen = MakeLabel("(");
+            var row = CustomStyles.MakeHighlightableRow();
 
             var inner1 = new PropertyField(expr1Prop, "");
-            inner1.style.flexGrow = 1;
+            inner1.style.flexGrow   = 1;
             inner1.style.flexShrink = 1;
 
             var opField = new PropertyField(operProp, "");
             opField.style.flexShrink = 0;
-            opField.style.minWidth = 60;
-            opField.style.maxWidth = 80;
+            opField.style.minWidth   = 60;
+            opField.style.maxWidth   = 80;
 
             var inner2 = new PropertyField(expr2Prop, "");
-            inner2.style.flexGrow = 1;
+            inner2.style.flexGrow   = 1;
             inner2.style.flexShrink = 1;
 
-            var lblClose = MakeLabel(")");
-
-            row.Add(lblOpen);
+            row.Add(CustomStyles.MakeLabel("("));
             row.Add(inner1);
             row.Add(opField);
             row.Add(inner2);
-            row.Add(lblClose);
-            
-            root.Add(row);
-            
-            return root;
-        }
+            row.Add(CustomStyles.MakeLabel(")"));
 
-        static Label MakeLabel(string text)
-        {
-            var lbl = new Label(text);
-            lbl.style.flexShrink = 0;
-            lbl.style.paddingLeft = 2;
-            lbl.style.paddingRight = 2;
-            lbl.style.height = 20;
-            lbl.style.fontSize = 20;
-            lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
-            return lbl;
+            root.Add(row);
+            return root;
         }
     }
 
@@ -119,48 +68,34 @@ namespace UnityInspectorExpressions.Expressions
             var expr2Prop = property.FindPropertyRelative(s_InnerProperty2Name);
             var operProp  = property.FindPropertyRelative(s_OperatorPropertyName);
 
-            // Root container – rebuilt whenever the operator value changes
             var root = new VisualElement();
             root.style.flexGrow = 1;
-            root.style.color = Color.white;
+            root.style.color    = Color.white;
 
             void Rebuild()
             {
                 root.Clear();
-                var so = property.serializedObject;
-                var positioning = GetPositioningInfo(property, operProp);
-                bool isFunction = positioning != null && positioning.m_Position == BinaryOperatorPosition.FunctionCall;
+                var so           = property.serializedObject;
+                var positioning  = GetPositioningInfo(property, operProp);
+                bool isFunction  = positioning != null && positioning.m_Position == BinaryOperatorPosition.FunctionCall;
 
-                var row = new VisualElement();
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.alignItems = Align.Center;
-                row.style.flexGrow = 1;
+                var row = CustomStyles.MakeHighlightableRow();
 
-                row.RegisterCallback((MouseOverEvent evt) =>
-                {
-                    ExpressionHighlightState.SetSelected(row);
-                    evt.StopPropagation();
-                });
-                row.RegisterCallback( ( MouseLeaveEvent evt ) =>
-                {
-                    ExpressionHighlightState.SetSelected(null);
-                });
-                
                 var inner1 = new PropertyField(expr1Prop, "");
-                inner1.style.flexGrow = 1;
+                inner1.style.flexGrow   = 1;
                 inner1.style.flexShrink = 1;
                 inner1.Bind(so);
 
                 var inner2 = new PropertyField(expr2Prop, "");
-                inner2.style.flexGrow = 1;
+                inner2.style.flexGrow   = 1;
                 inner2.style.flexShrink = 1;
                 inner2.Bind(so);
 
                 var opField = new PropertyField(operProp, "");
                 opField.style.flexShrink = 0;
-                opField.style.flexGrow = 1;
+                opField.style.flexGrow   = 1;
                 var cachedVal = operProp.enumValueIndex;
-                opField.RegisterValueChangeCallback(evt =>
+                opField.RegisterValueChangeCallback(_ =>
                 {
                     if (cachedVal != operProp.enumValueIndex)
                     {
@@ -177,11 +112,11 @@ namespace UnityInspectorExpressions.Expressions
                     opField.style.maxWidth = 180;
 
                     row.Add(opField);
-                    row.Add(MakeLabel("("));
+                    row.Add(CustomStyles.MakeLabel("("));
                     row.Add(inner1);
-                    row.Add(MakeLabel(","));
+                    row.Add(CustomStyles.MakeLabel(","));
                     row.Add(inner2);
-                    row.Add(MakeLabel(")"));
+                    row.Add(CustomStyles.MakeLabel(")"));
                 }
                 else
                 {
@@ -189,31 +124,21 @@ namespace UnityInspectorExpressions.Expressions
                     opField.style.minWidth = 30;
                     opField.style.maxWidth = 60;
 
-                    row.Add(MakeLabel("("));
+                    row.Add(CustomStyles.MakeLabel("("));
                     row.Add(inner1);
                     row.Add(opField);
                     row.Add(inner2);
-                    row.Add(MakeLabel(")"));
+                    row.Add(CustomStyles.MakeLabel(")"));
                 }
 
                 root.Add(row);
             }
 
             Rebuild();
+            root.TrackPropertyValue(operProp, _ => Rebuild());
             return root;
         }
 
-        static Label MakeLabel(string text)
-        {
-            var lbl = new Label(text);
-            lbl.style.flexShrink = 0;
-            lbl.style.paddingLeft = 2;
-            lbl.style.paddingRight = 2;
-            lbl.style.height = 20;
-            lbl.style.fontSize = 20;
-            lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
-            return lbl;
-        }
 
         private BinaryOperatorPositionAttribute GetPositioningInfo(SerializedProperty property, SerializedProperty operProp)
         {
