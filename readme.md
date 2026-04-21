@@ -43,6 +43,29 @@ https://github.com/soraphis/UnityInspectorExpressions.git
 
 A set of custom drawers to create expression logic for most common types.
 
+# Using a Context
+
+Expressions are generic over a `TCtx` type parameter, which represents the context passed to `Evaluate(ctx)`. You can use any type as a context — a plain struct, a class, or a ScriptableObject.
+
+To use **FromContext** expressions (e.g. `FromContextFloatExpression`), the context type must:
+
+1. Be annotated with [`[GeneratePropertyBag]`](https://docs.unity3d.com/Packages/com.unity.properties@2.0/manual/index.html) (from `Unity.Properties`).
+2. Expose properties with the `[CreateProperty]` attribute so they are accessible via `PropertyContainer`.
+
+Example:
+
+```csharp
+using Unity.Properties;
+
+[GeneratePropertyBag]
+public class MyContext
+{
+    [CreateProperty] public float Speed { get; set; }
+    [CreateProperty] public int Health { get; set; }
+}
+```
+
+You can then set a `FromContextFloatExpression`'s path to `"Speed"` and it will read `ctx.Speed` at runtime via `PropertyContainer.GetValue`.
 
 # TODO
 

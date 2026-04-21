@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Properties;
 using UnityEngine;
 
 namespace UnityInspectorExpressions.Expressions.Base
@@ -20,6 +21,17 @@ namespace UnityInspectorExpressions.Expressions.Base
         public LiteralVector2Expression() { }
         public LiteralVector2Expression(Vector2 literal) { m_Literal = literal; }
         public override Vector2 Evaluate(TCtx ctx) => m_Literal;
+    }
+
+    public class FromContextVector2Expression<TCtx> : Vector2ExpressionBase<TCtx>
+    {
+        [SerializeField] internal string m_PathToProperty;
+
+        public override Vector2 Evaluate(TCtx ctx)
+        {
+            var propertyPath = new PropertyPath(m_PathToProperty);
+            return PropertyContainer.GetValue<TCtx, Vector2>(ref ctx, propertyPath);
+        }
     }
 
     [System.Serializable]

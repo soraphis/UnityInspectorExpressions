@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Properties;
 using UnityEngine;
 
 namespace UnityInspectorExpressions.Expressions.Base
@@ -21,6 +22,17 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override Component Evaluate(TCtx ctx) => m_Literal;
     }
 
+
+    public class FromContextComponentExpression<TCtx> : ComponentExpressionBase<TCtx>
+    {
+        [SerializeField] internal string m_PathToProperty;
+
+        public override Component Evaluate(TCtx ctx)
+        {
+            var propertyPath = new PropertyPath(m_PathToProperty);
+            return PropertyContainer.GetValue<TCtx, Component>(ref ctx, propertyPath);
+        }
+    }
 
     [System.Serializable]
     [ExpressionLabel("Component/Match First")]

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Properties;
 using UnityEngine;
 
 namespace UnityInspectorExpressions.Expressions.Base
@@ -23,6 +24,17 @@ namespace UnityInspectorExpressions.Expressions.Base
         public LiteralBoolExpression() { }
         public LiteralBoolExpression(bool literal) { m_Literal = literal; }
         public override bool Evaluate(TCtx ctx) => m_Literal;
+    }
+
+    public class FromContextBoolExpression<TCtx> : BoolExpressionBase<TCtx>
+    {
+        [SerializeField] internal string m_PathToProperty;
+
+        public override bool Evaluate(TCtx ctx)
+        {
+            var propertyPath = new PropertyPath(m_PathToProperty);
+            return PropertyContainer.GetValue<TCtx, bool>(ref ctx, propertyPath);
+        }
     }
 
     [System.Serializable]
