@@ -11,6 +11,13 @@ namespace UnityInspectorExpressions.Expressions
 {
 
     [CustomPropertyDrawer(typeof(FromContextGameObjectExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextVector2Expression<>))]
+    [CustomPropertyDrawer(typeof(FromContextVector3Expression<>))]
+    [CustomPropertyDrawer(typeof(FromContextComponentExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextBoolExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextFloatExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextIntExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextStringExpression<>))]
     public class ContextExpressionDrawer : PropertyDrawer
     {
         const string s_PropertyName = "m_PathToProperty";
