@@ -25,6 +25,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override int Evaluate(TCtx ctx) => m_Literal;
     }
 
+    [System.Serializable]
     public class FromContextIntExpression<TCtx> : IntExpressionBase<TCtx>
     {
         [SerializeField] internal string m_PathToProperty;
