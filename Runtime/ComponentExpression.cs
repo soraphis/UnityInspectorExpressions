@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEngine;
 
@@ -10,6 +9,9 @@ namespace UnityInspectorExpressions.Expressions
 		[SerializeReference] internal ComponentExpressionBase<TCtx> m_ExpressionRef;
 
 		public ComponentExpression(ComponentExpressionBase<TCtx> @ref) : this() { m_ExpressionRef = @ref; }
+
+		public static ComponentExpression<TCtx> FromLiteral(Component value) => new(new LiteralComponentExpression<TCtx>(value));
+		public static implicit operator ComponentExpression<TCtx>(Component value) => FromLiteral(value);
 
 		public Component Evaluate(TCtx ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
 

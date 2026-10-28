@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Editor.Helpers;
 using UnityInspectorExpressions.Expressions.Base;
 using UnityEditor;
@@ -104,6 +105,7 @@ namespace UnityInspectorExpressions.Expressions
                     }
                 });
                 opField.Bind(so);
+                OperatorDocs.Apply(property, operProp, opField, inner1, inner2);
 
                 if (isFunction)
                 {
@@ -156,6 +158,52 @@ namespace UnityInspectorExpressions.Expressions
             if (memInfo.Length == 0) return null;
             var attributes = memInfo[0].GetCustomAttributes(typeof(BinaryOperatorPositionAttribute), false);
             return (attributes.Length > 0) ? (BinaryOperatorPositionAttribute)attributes[0] : null;
+        }
+    }
+
+    /// <summary>Applies <see cref="OperatorDocAttribute"/> tooltips to the operator dropdown and argument fields.</summary>
+    internal static class OperatorDocs
+    {
+        public static void Apply(SerializedProperty property, SerializedProperty operProp, VisualElement opField, params VisualElement[] argFields)
+        {
+            var (doc, member) = Get(property, operProp);
+            if (doc == null) return;
+
+            // args are "name: description"
+            var names = new string[doc.Args.Length];
+            var descs = new string[doc.Args.Length];
+            for (int i = 0; i < doc.Args.Length; i++)
+            {
+                var split = doc.Args[i].Split(new[] { ':' }, 2);
+                names[i] = split[0].Trim();
+                descs[i] = split.Length > 1 ? split[1].Trim() : "";
+            }
+
+            var display   = member.GetCustomAttribute<InspectorNameAttribute>()?.displayName ?? member.Name;
+            var isFunc    = member.GetCustomAttribute<BinaryOperatorPositionAttribute>()?.m_Position == BinaryOperatorPosition.FunctionCall;
+            var signature = isFunc || names.Length != 2
+                ? $"{display}({string.Join(", ", names)})"
+                : $"{names[0]} {display} {names[1]}";
+
+            opField.tooltip = $"{signature}\n{doc.Summary}";
+            for (int i = 0; i < argFields.Length && i < names.Length; i++)
+                argFields[i].tooltip = $"{signature}\n{names[i]}: {descs[i]}";
+        }
+
+        static (OperatorDocAttribute doc, System.Reflection.MemberInfo member) Get(SerializedProperty property, SerializedProperty operProp)
+        {
+            var declaringType = property.managedReferenceValue?.GetType();
+            var opField = declaringType?.GetField("m_Operator",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.Public   |
+                System.Reflection.BindingFlags.NonPublic);
+            if (opField == null) return default;
+            var type       = opField.FieldType;
+            var memberName = Enum.GetName(type, operProp.intValue);
+            if (memberName == null) return default;
+            var memInfo = type.GetMember(memberName);
+            if (memInfo.Length == 0) return default;
+            return (memInfo[0].GetCustomAttribute<OperatorDocAttribute>(false), memInfo[0]);
         }
     }
 

@@ -21,13 +21,14 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override GameObject Evaluate(TCtx ctx) => m_Literal;
     }
 
+    [System.Serializable]
     public class FromContextGameObjectExpression<TCtx> : GameObjectExpressionBase<TCtx>
     {
         // TODO: see https://docs.unity3d.com/Packages/com.unity.properties@2.0/manual/index.html
-        // context must be flagged as GeneratePropertyBag, and only [CreateProperty] members can be retrieved. 
-        
-        [SerializeField] internal string m_PathToProperty; 
-        
+        // context must be flagged as GeneratePropertyBag, and only [CreateProperty] members can be retrieved.
+
+        [SerializeField] internal string m_PathToProperty;
+
         public override GameObject Evaluate(TCtx ctx)
         {
             var propertyPath = new PropertyPath(m_PathToProperty);
@@ -35,7 +36,7 @@ namespace UnityInspectorExpressions.Expressions.Base
             return PropertyContainer.GetValue<TCtx, GameObject>(ref ctx, propertyPath);
         }
     }
-    
+
     [System.Serializable]
     [ExpressionLabel("GameObject/Match First")]
     public class MatchFirstGameObjectExpression<TCtx> : GameObjectExpressionBase<TCtx>

@@ -23,7 +23,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 
     }
 
-
+    [System.Serializable]
     public class FromContextStringExpression<TCtx> : StringExpressionBase<TCtx>
     {
         [SerializeField] internal string m_PathToProperty;

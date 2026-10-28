@@ -22,7 +22,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override Component Evaluate(TCtx ctx) => m_Literal;
     }
 
-
+    [System.Serializable]
     public class FromContextComponentExpression<TCtx> : ComponentExpressionBase<TCtx>
     {
         [SerializeField] internal string m_PathToProperty;

@@ -25,6 +25,19 @@ namespace UnityInspectorExpressions.Expressions
 		}
 	}
 
+	[AttributeUsage(AttributeTargets.Field, Inherited = false)]
+	public sealed class OperatorDocAttribute : Attribute
+	{
+		public readonly string Summary;
+		public readonly string[] Args;
+
+		public OperatorDocAttribute(string summary, params string[] args)
+		{
+			Summary = summary;
+			Args = args;
+		}
+	}
+
 	public enum UnaryOperatorPosition { Operator, FunctionCall, Property }
 
 	public class UnaryOperatorPositionAttribute : Attribute

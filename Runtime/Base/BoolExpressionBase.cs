@@ -7,16 +7,16 @@ using UnityEngine;
 namespace UnityInspectorExpressions.Expressions.Base
 {
 
-    [System.Serializable]
+    [Serializable]
     public abstract class BoolExpressionBase<TCtx> : IExpression<bool, TCtx>, IWrapable<UnaryBoolExpression<TCtx>>, IWrapable<BinaryBoolExpression<TCtx>>, IWrapable<ManyBoolExpression<TCtx>>
     {
         public abstract bool Evaluate(TCtx ctx);
 
-        UnaryBoolExpression<TCtx> IWrapable<UnaryBoolExpression<TCtx>>.Wrap() => new UnaryBoolExpression<TCtx>() { m_InnerExpr = new() { m_ExpressionRef = this } };
-        BinaryBoolExpression<TCtx> IWrapable<BinaryBoolExpression<TCtx>>.Wrap() => new BinaryBoolExpression<TCtx>() { m_InnerExpr1 = new() { m_ExpressionRef = this } };
-        ManyBoolExpression<TCtx> IWrapable<ManyBoolExpression<TCtx>>.Wrap() => new ManyBoolExpression<TCtx>() { m_InnerExpr = new() { new() { m_ExpressionRef = this } } };
+        UnaryBoolExpression<TCtx> IWrapable<UnaryBoolExpression<TCtx>>.Wrap() => new UnaryBoolExpression<TCtx> { m_InnerExpr = new() { m_ExpressionRef = this } };
+        BinaryBoolExpression<TCtx> IWrapable<BinaryBoolExpression<TCtx>>.Wrap() => new BinaryBoolExpression<TCtx> { m_InnerExpr1 = new() { m_ExpressionRef = this } };
+        ManyBoolExpression<TCtx> IWrapable<ManyBoolExpression<TCtx>>.Wrap() => new ManyBoolExpression<TCtx> { m_InnerExpr = new() { new() { m_ExpressionRef = this } } };
     }
-    [System.Serializable]
+    [Serializable]
     [ExpressionLabel("Bool/Literal")]
     public class LiteralBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -26,6 +26,8 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override bool Evaluate(TCtx ctx) => m_Literal;
     }
 
+    [Serializable]
+    [ExpressionLabel("Bool From Context")]
     public class FromContextBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         [SerializeField] internal string m_PathToProperty;
@@ -37,7 +39,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         }
     }
 
-    [System.Serializable]
+    [Serializable]
     [ExpressionLabel("Bool/Unary")]
     public class UnaryBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -53,7 +55,7 @@ namespace UnityInspectorExpressions.Expressions.Base
             _ => throw new NotImplementedException(),
         };
     }
-    [System.Serializable]
+    [Serializable]
     [ExpressionLabel("Bool/Binary")]
     public class BinaryBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -79,7 +81,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
 
-    [System.Serializable]
+    [Serializable]
     [ExpressionLabel("Bool/Many")]
     public class ManyBoolExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -98,6 +100,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
 
+    [Serializable]
     [ExpressionLabel("From Float/Relational")]
     public class FloatRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -128,6 +131,7 @@ namespace UnityInspectorExpressions.Expressions.Base
         };
     }
 
+    [Serializable]
     [ExpressionLabel("From Int/Relational")]
     public class IntRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -156,6 +160,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 	    };
     }
 
+    [Serializable]
     [ExpressionLabel("From GameObject/Relational")]
     public class GameObjectRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
@@ -176,14 +181,15 @@ namespace UnityInspectorExpressions.Expressions.Base
 		    _ => throw new NotImplementedException(),
 	    };
     }
-    
+
 
     public abstract class BoolResultFunctionExpression<TCtx, TObj, TArg0> : BoolExpressionBase<TCtx>
     {
 	    [SerializeField] internal TObj m_Object;
 	    [SerializeField] internal TArg0 m_Argument;
     }
-    
+
+    [Serializable]
     [ExpressionLabel("From GameObject/Fn: Compare Tag")]
     public class GameObject_CompareTag_FunctionExpression<TCtx> : BoolResultFunctionExpression<TCtx, GameObjectExpression<TCtx>, StringExpression<TCtx>>
 	{
@@ -194,7 +200,7 @@ namespace UnityInspectorExpressions.Expressions.Base
 		    return go.CompareTag(tag);
 	    }
 	}
-    
-	
-    
+
+
+
 }

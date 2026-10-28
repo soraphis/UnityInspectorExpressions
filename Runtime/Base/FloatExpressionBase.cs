@@ -25,6 +25,8 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override float Evaluate(TCtx ctx) => m_Literal;
     }
 
+    [System.Serializable]
+    [ExpressionLabel("From Context")]
     public class FromContextFloatExpression<TCtx> : FloatExpressionBase<TCtx>
     {
         [SerializeField] internal string m_PathToProperty;
@@ -46,13 +48,15 @@ namespace UnityInspectorExpressions.Expressions.Base
             Sign,
             Square,
             Sqrt,
-            Random01,
+            // kept only so existing serialized data keeps working; ignores its argument. use Float/Random01
+            [Obsolete("Use RandomFloat01Expression (Float/Random01)")] Random01,
         }
         [SerializeField] internal FloatExpression<TCtx> m_InnerExpr;
         [SerializeField] internal UnaryOperator m_Operator;
         public override float Evaluate(TCtx ctx)
         {
             var f = m_InnerExpr.Evaluate(ctx);
+#pragma warning disable CS0618
             return m_Operator switch
             {
                 UnaryOperator.Negate    => -f,
@@ -62,7 +66,15 @@ namespace UnityInspectorExpressions.Expressions.Base
                 UnaryOperator.Random01  => UnityEngine.Random.value,
                 _ => throw new NotImplementedException(),
             };
+#pragma warning restore CS0618
         }
+    }
+
+    [System.Serializable]
+    [ExpressionLabel("Float/Random01")]
+    public class RandomFloat01Expression<TCtx> : FloatExpressionBase<TCtx>
+    {
+        public override float Evaluate(TCtx ctx) => UnityEngine.Random.value;
     }
 
     [System.Serializable]
@@ -76,8 +88,10 @@ namespace UnityInspectorExpressions.Expressions.Base
             [InspectorName("*")] Multiply,
             [InspectorName("÷")] Divide,
             [InspectorName("%")] Modulo,
-            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall)] Max,
-            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall)] Min,
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("The larger of a and b", "a: first value", "b: second value")] Max,
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("The smaller of a and b", "a: first value", "b: second value")] Min,
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("Random float between min and max (inclusive)", "min: lower bound", "max: upper bound")] RandomRange,
+            [InspectorName("+%"), OperatorDoc("a * (1 + b), e.g. 100 +% 0.4 = 140", "a: base value", "b: percent as fraction (0.4 = +40%)")] AddPercent,
         }
 
         [SerializeField] internal FloatExpression<TCtx> m_InnerExpr1;
@@ -85,8 +99,10 @@ namespace UnityInspectorExpressions.Expressions.Base
         [SerializeField] internal BinaryOperator m_Operator;
         public override float Evaluate(TCtx ctx) => m_Operator switch
         {
-            BinaryOperator.Max      => Mathf.Max(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
-            BinaryOperator.Min      => Mathf.Min(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            BinaryOperator.Max         => Mathf.Max(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            BinaryOperator.Min         => Mathf.Min(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            BinaryOperator.RandomRange => UnityEngine.Random.Range(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
+            BinaryOperator.AddPercent  => m_InnerExpr1.Evaluate(ctx) * (1f + m_InnerExpr2.Evaluate(ctx)),
             BinaryOperator.Add      => m_InnerExpr1.Evaluate(ctx) + m_InnerExpr2.Evaluate(ctx),
             BinaryOperator.Subtract => m_InnerExpr1.Evaluate(ctx) - m_InnerExpr2.Evaluate(ctx),
             BinaryOperator.Multiply => m_InnerExpr1.Evaluate(ctx) * m_InnerExpr2.Evaluate(ctx),
@@ -95,6 +111,32 @@ namespace UnityInspectorExpressions.Expressions.Base
             _ => throw new NotImplementedException(),
         };
     }
+
+    [System.Serializable]
+    [ExpressionLabel("Float/Ternary")]
+    public class TernaryFloatExpression<TCtx> : FloatExpressionBase<TCtx>
+    {
+        public enum TernaryOperator
+        {
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("Linear interpolation from a to b (t clamped to 0..1)", "a: result at t = 0", "b: result at t = 1", "t: blend factor (0..1)")] Lerp,
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("Where value lies between a and b, as 0..1 (clamped)", "a: maps to 0", "b: maps to 1", "value: the value to locate")] InverseLerp,
+            [BinaryOperatorPosition(BinaryOperatorPosition.FunctionCall), OperatorDoc("Random pick: b with probability 'chance', otherwise a", "a: result on a failed roll", "b: result on a successful roll", "chance: probability of b (0..1)")] Chance,
+        }
+
+        [SerializeField] internal FloatExpression<TCtx> m_InnerExpr1;
+        [SerializeField] internal FloatExpression<TCtx> m_InnerExpr2;
+        [SerializeField] internal FloatExpression<TCtx> m_InnerExpr3;
+        [SerializeField] internal TernaryOperator m_Operator;
+
+        public override float Evaluate(TCtx ctx) => m_Operator switch
+        {
+            TernaryOperator.Lerp        => Mathf.Lerp(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx), m_InnerExpr3.Evaluate(ctx)),
+            TernaryOperator.InverseLerp => Mathf.InverseLerp(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx), m_InnerExpr3.Evaluate(ctx)),
+            TernaryOperator.Chance      => UnityEngine.Random.value < m_InnerExpr3.Evaluate(ctx) ? m_InnerExpr2.Evaluate(ctx) : m_InnerExpr1.Evaluate(ctx),
+            _ => throw new NotImplementedException(),
+        };
+    }
+
 
     [System.Serializable]
     [ExpressionLabel("Float/Match First")]

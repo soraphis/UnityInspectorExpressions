@@ -24,11 +24,11 @@ namespace UnityInspectorExpressions.Expressions
             var entriesProp = property.FindPropertyRelative(s_EntriesPropertyName);
             var defaultProp = property.FindPropertyRelative(s_DefaultExprPropertyName);
 
-            // ── outer column ──────────────────────────────────────────────
+            // -- outer column ----------------------------------------------
             var root = new VisualElement();
             root.style.flexGrow = 1;
 
-            // ── header row:  "match first {"    [+] ──────────────────────
+            // -- header row:  "match first {"    [+] ----------------------
             var header = CustomStyles.MakeRow();
             header.style.marginBottom = 2;
             header.style.flexGrow     = 0;
@@ -50,7 +50,7 @@ namespace UnityInspectorExpressions.Expressions
             header.Add(addBtn);
             root.Add(header);
 
-            // ── body: indented list of match-entries ──────────────────────
+            // -- body: indented list of match-entries ----------------------
             var body = new VisualElement();
             body.style.paddingLeft = 10;
             root.Add(body);
@@ -90,7 +90,7 @@ namespace UnityInspectorExpressions.Expressions
             RebuildList();
             root.TrackPropertyValue(entriesProp, _ => RebuildList());
 
-            // ── footer row:  "  default ⇒ [expr] }" ──────────────────────
+            // -- footer row:  "  default ⇒ [expr] }" ----------------------
             var footer = CustomStyles.MakeRow();
             footer.style.marginTop   = 2;
             footer.style.paddingLeft = 10;

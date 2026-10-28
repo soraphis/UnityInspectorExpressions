@@ -19,11 +19,11 @@ namespace UnityInspectorExpressions.Expressions
             var operatorProp = property.FindPropertyRelative(s_OperatorPropertyName);
             var entriesProp  = property.FindPropertyRelative(s_EntriesPropertyName);
 
-            // ── outer column ──────────────────────────────────────────────
+            // -- outer column ----------------------------------------------
             var root = new VisualElement();
             root.style.flexGrow = 1;
 
-            // ── header row:  [operator] {    [+] ──────────────────────────
+            // -- header row:  [operator] {    [+] --------------------------
             var header = CustomStyles.MakeRow();
             header.style.marginBottom = 2;
             header.style.flexGrow     = 0;   // don't grow the header itself
@@ -52,7 +52,7 @@ namespace UnityInspectorExpressions.Expressions
             header.Add(addBtn);
             root.Add(header);
 
-            // ── body: indented list of items ─────────────────────────────
+            // -- body: indented list of items -----------------------------
             var body = new VisualElement();
             body.style.paddingLeft = 10;
             root.Add(body);
@@ -92,7 +92,7 @@ namespace UnityInspectorExpressions.Expressions
             RebuildList();
             root.TrackPropertyValue(entriesProp, _ => RebuildList());
 
-            // ── footer: closing brace ─────────────────────────────────────
+            // -- footer: closing brace -------------------------------------
             var footer = new Label("}");
             footer.style.paddingLeft = 4;
             footer.style.marginTop   = 2;
