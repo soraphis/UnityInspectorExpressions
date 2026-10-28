@@ -17,8 +17,7 @@ namespace UnityInspectorExpressions.Expressions
     [CustomPropertyDrawer(typeof(FromContextVector3Expression<>))]
     [CustomPropertyDrawer(typeof(FromContextComponentExpression<>))]
     [CustomPropertyDrawer(typeof(FromContextBoolExpression<>))]
-    [CustomPropertyDrawer(typeof(FromContextFloatExpression<>))]
-    [CustomPropertyDrawer(typeof(FromContextIntExpression<>))]
+    [CustomPropertyDrawer(typeof(FromContextNumericExpression<>))]
     [CustomPropertyDrawer(typeof(FromContextStringExpression<>))]
     public class ContextExpressionDrawer : PropertyDrawer
     {
@@ -51,15 +50,18 @@ namespace UnityInspectorExpressions.Expressions
             if (genericType != null)
             {
                 List<string> propertyNames = new List<string>();
+                var numericPropertyTypes = new Dictionary<string, System.Type>();
+                var isNumericExpression = property.FindPropertyRelative("m_IsInteger") != null;
 
                 var parentPropInfos = genericType.GetProperties()
                     .Where(x => x.GetCustomAttributes(typeof(CreatePropertyAttribute), true).Any());
 
-
-                propertyNames.AddRange(parentPropInfos
-                    .Select(x => x.Name)
-                    .Append("None")
-                    .ToList());
+                foreach (var propInfo in parentPropInfos)
+                {
+                    if (isNumericExpression && !IsNumericType(propInfo.PropertyType)) continue;
+                    propertyNames.Add(propInfo.Name);
+                    numericPropertyTypes[propInfo.Name] = propInfo.PropertyType;
+                }
 
                 foreach (var propInfo in parentPropInfos)
                 {
@@ -67,11 +69,17 @@ namespace UnityInspectorExpressions.Expressions
                     var subtype = propInfo.PropertyType;
                     if (subtype.GetCustomAttribute<GeneratePropertyBagAttribute>() is { } bag)
                     {
-                        propertyNames.AddRange(subtype.GetProperties()
+                        var nestedProperties = subtype.GetProperties()
                             .Where(x => x.GetCustomAttributes<CreatePropertyAttribute>(true).Any())
-                            .Select(x => parentName + "." + x.Name));
+                            .Where(x => !isNumericExpression || IsNumericType(x.PropertyType))
+                            .ToList();
+                        propertyNames.AddRange(nestedProperties.Select(x => parentName + "." + x.Name));
+                        foreach (var nestedProperty in nestedProperties)
+                            numericPropertyTypes[parentName + "." + nestedProperty.Name] = nestedProperty.PropertyType;
                     }
                 }
+
+                propertyNames.Add("None");
 
                 // collect all members of the type with [CreateProperty] and show them as dropdown:
                 propertyNames.Sort();
@@ -86,7 +94,11 @@ namespace UnityInspectorExpressions.Expressions
                 var propCopy = property.Copy();
                 field.RegisterValueChangedCallback(evt =>
                 {
-                    propCopy.FindPropertyRelative(s_PropertyName).stringValue = evt.newValue;
+                    var selectedPath = evt.newValue == "None" ? "" : evt.newValue;
+                    propCopy.FindPropertyRelative(s_PropertyName).stringValue = selectedPath;
+                    var integerFlag = propCopy.FindPropertyRelative("m_IsInteger");
+                    if (integerFlag != null)
+                        integerFlag.boolValue = numericPropertyTypes.TryGetValue(selectedPath, out var propertyType) && propertyType == typeof(int);
                     propCopy.serializedObject.ApplyModifiedProperties();
                 });
                 row.Add(field);
@@ -100,5 +112,7 @@ namespace UnityInspectorExpressions.Expressions
 
             return row;
         }
+
+        private static bool IsNumericType(System.Type type) => type == typeof(int) || type == typeof(float);
     }
 }

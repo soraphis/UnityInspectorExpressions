@@ -11,8 +11,7 @@ namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(BinaryBoolExpression<>))]
     [CustomPropertyDrawer(typeof(GameObjectRelationalExpression<>))]
-    [CustomPropertyDrawer(typeof(FloatRelationalExpression<>))]
-    [CustomPropertyDrawer(typeof(IntRelationalExpression<>))]
+    [CustomPropertyDrawer(typeof(NumericRelationalExpression<>))]
     public class BinaryBoolExpressionDrawer : PropertyDrawer
     {
         const string s_InnerProperty1Name   = "m_InnerExpr1";
@@ -55,9 +54,8 @@ namespace UnityInspectorExpressions.Expressions
         }
     }
 
-    [CustomPropertyDrawer(typeof(BinaryFloatExpression<>))]
-    [CustomPropertyDrawer(typeof(BinaryIntExpression<>))]
-    public class BinaryFloatExpressionDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(BinaryNumericExpression<>))]
+    public class BinaryNumericExpressionDrawer : PropertyDrawer
     {
         const string s_InnerProperty1Name   = "m_InnerExpr1";
         const string s_InnerProperty2Name   = "m_InnerExpr2";

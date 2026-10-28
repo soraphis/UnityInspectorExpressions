@@ -1,22 +1,26 @@
 # Simple Usage
 
-The simplest way to use the expressions in your own code and components is to add a field of the Expression type you need.
+Use `NumericExpression<TCtx>` for numeric calculations. It evaluates as a float, so integer context values can be combined directly with fractional values such as `0.25`.
 
-For example, the following code snippet will use an IntExpression.
+Use `IntExpression<TCtx>` when a consumer requires an integer. It wraps the same numeric expression and rounds the final result to the nearest integer.
 
 ```csharp
 using UnityInspectorExpressions.Expressions;
 
+[System.Serializable]
+public class MyContext { }
+
 public class TestComponent : MonoBehaviour
 {
-    [SerializeField] private IntExpression myIntExpression;
+    [SerializeField] private NumericExpression<MyContext> m_Damage;
+    [SerializeField] private IntExpression<MyContext> m_WholeDamage;
     
-    void Start()
+    void Apply(MyContext context)
     {
-        Debug.Log(myIntExpression.Evaluate());
+        Debug.Log(m_Damage.Evaluate(context));
+        Debug.Log(m_WholeDamage.Evaluate(context));
     }
 }
 ```
 
-This allows configuration in the Unity Inspector.
-Game Designers can set it to any expression that returns an int. For example 2 + 3, or Random.Range(0, 10) + 3.
+Both fields expose the same numeric expression choices in the Unity Inspector. For example, `m_WholeDamage` can evaluate an integer context value multiplied by `0.25`; rounding happens only when `IntExpression` returns the result, using `Mathf.RoundToInt` semantics.

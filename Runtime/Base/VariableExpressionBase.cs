@@ -13,17 +13,17 @@ namespace UnityInspectorExpressions.Expressions.Base
         public override bool Evaluate(TCtx ctx) => m_Variable.GetValue();
     }
 
-    public class VariableFloatExpression<TCtx, T> : FloatExpressionBase<TCtx>
-        where T : IGetValue<float>
+    [System.Serializable]
+    [ExpressionLabel("Numeric/From Variable")]
+    public class VariableNumericExpression<TCtx, T> : NumericExpressionBase<TCtx>
     {
         [SerializeField] internal T m_Variable;
-        public override float Evaluate(TCtx ctx) => m_Variable.GetValue();
-    }
 
-    public class VariableIntExpression<TCtx, T> : IntExpressionBase<TCtx>
-        where T : IGetValue<int>
-    {
-        [SerializeField] internal T m_Variable;
-        public override int Evaluate(TCtx ctx) => m_Variable.GetValue();
+        public override float Evaluate(TCtx ctx)
+        {
+            if (m_Variable is IGetValue<float> floatValue) return floatValue.GetValue();
+            if (m_Variable is IGetValue<int> intValue) return intValue.GetValue();
+            throw new System.InvalidOperationException($"{typeof(T)} must implement IGetValue<float> or IGetValue<int>.");
+        }
     }
 }

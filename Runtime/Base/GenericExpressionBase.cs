@@ -46,11 +46,11 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [Serializable]
-    [ExpressionLabel("Set/Float")]
-    public class FloatPropertySetter<TCtx, TResult> : IPropertySetter<TCtx, TResult>
+    [ExpressionLabel("Set/Numeric")]
+    public class NumericPropertySetter<TCtx, TResult> : IPropertySetter<TCtx, TResult>
     {
         [SerializeField] internal string m_Path;
-        public FloatExpression<TCtx> m_Value;
+        public NumericExpression<TCtx> m_Value;
         public void Apply(TResult target, TCtx ctx) =>
             PropertyContainer.SetValue(ref target, new PropertyPath(m_Path), m_Value.Evaluate(ctx));
     }

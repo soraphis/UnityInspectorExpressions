@@ -101,8 +101,8 @@ namespace UnityInspectorExpressions.Expressions.Base
     }
 
     [Serializable]
-    [ExpressionLabel("From Float/Relational")]
-    public class FloatRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
+    [ExpressionLabel("From Numeric/Relational")]
+    public class NumericRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
     {
         public enum BinaryOperator
         {
@@ -115,8 +115,8 @@ namespace UnityInspectorExpressions.Expressions.Base
             [InspectorName("\u2248")] Approx,
 
         }
-        [SerializeField] internal FloatExpression<TCtx>  m_InnerExpr1;
-        [SerializeField] internal FloatExpression<TCtx>  m_InnerExpr2;
+        [SerializeField] internal NumericExpression<TCtx> m_InnerExpr1;
+        [SerializeField] internal NumericExpression<TCtx> m_InnerExpr2;
         [SerializeField] internal BinaryOperator  m_Operator;
         public override bool Evaluate(TCtx ctx) => m_Operator switch
         {
@@ -129,35 +129,6 @@ namespace UnityInspectorExpressions.Expressions.Base
             BinaryOperator.Approx => Mathf.Approximately(m_InnerExpr1.Evaluate(ctx), m_InnerExpr2.Evaluate(ctx)),
             _ => throw new NotImplementedException(),
         };
-    }
-
-    [Serializable]
-    [ExpressionLabel("From Int/Relational")]
-    public class IntRelationalExpression<TCtx> : BoolExpressionBase<TCtx>
-    {
-	    public enum BinaryOperator
-	    {
-		    [InspectorName("==")] Equal,
-		    [InspectorName("!=")] Unequal,
-		    [InspectorName(">=")] GreaterEqual,
-		    [InspectorName(">")]  Greater,
-		    [InspectorName("<")]  Less,
-		    [InspectorName("<=")] LessEqual,
-
-	    }
-	    [SerializeField] internal IntExpression<TCtx> m_InnerExpr1;
-	    [SerializeField] internal IntExpression<TCtx> m_InnerExpr2;
-	    [SerializeField] internal BinaryOperator  m_Operator;
-	    public override bool Evaluate(TCtx ctx) => m_Operator switch
-	    {
-		    BinaryOperator.Equal => m_InnerExpr1.Evaluate(ctx) == m_InnerExpr2.Evaluate(ctx),
-		    BinaryOperator.Unequal => m_InnerExpr1.Evaluate(ctx) != m_InnerExpr2.Evaluate(ctx),
-		    BinaryOperator.GreaterEqual => m_InnerExpr1.Evaluate(ctx) >= m_InnerExpr2.Evaluate(ctx),
-		    BinaryOperator.Greater => m_InnerExpr1.Evaluate(ctx) > m_InnerExpr2.Evaluate(ctx),
-		    BinaryOperator.Less => m_InnerExpr1.Evaluate(ctx) < m_InnerExpr2.Evaluate(ctx),
-		    BinaryOperator.LessEqual => m_InnerExpr1.Evaluate(ctx) <= m_InnerExpr2.Evaluate(ctx),
-		    _ => throw new NotImplementedException(),
-	    };
     }
 
     [Serializable]

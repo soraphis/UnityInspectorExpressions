@@ -8,8 +8,8 @@ using UnityInspectorExpressions.Expressions.Base;
 namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(BoolResultFunctionExpression<,,>))]
-    [CustomPropertyDrawer(typeof(IntResultFunctionExpression<,>))]
-    [CustomPropertyDrawer(typeof(IntResultFunctionExpression<,,>))]
+    [CustomPropertyDrawer(typeof(NumericResultFunctionExpression<,>))]
+    [CustomPropertyDrawer(typeof(NumericResultFunctionExpression<,,>))]
     public class FunctionExpressionDrawer : PropertyDrawer
     {
         const string s_ObjectPropertyName   = "m_Object";

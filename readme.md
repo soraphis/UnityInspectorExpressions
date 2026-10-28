@@ -47,7 +47,7 @@ A set of custom drawers to create expression logic for most common types.
 
 Expressions are generic over a `TCtx` type parameter, which represents the context passed to `Evaluate(ctx)`. You can use any type as a context — a plain struct, a class, or a ScriptableObject.
 
-To use **FromContext** expressions (e.g. `FromContextFloatExpression`), the context type must:
+To use **FromContext** expressions, the context type must:
 
 1. Be annotated with [`[GeneratePropertyBag]`](https://docs.unity3d.com/Packages/com.unity.properties@2.0/manual/index.html) (from `Unity.Properties`).
 2. Expose properties with the `[CreateProperty]` attribute so they are accessible via `PropertyContainer`.
@@ -65,7 +65,7 @@ public class MyContext
 }
 ```
 
-You can then set a `FromContextFloatExpression`'s path to `"Speed"` and it will read `ctx.Speed` at runtime via `PropertyContainer.GetValue`.
+Numeric expressions can read either `int` or `float` properties. The Inspector records the selected property's type and reads it through `PropertyContainer`; the expression itself always evaluates as a float. Use `IntExpression<TCtx>` when an integer result is required; it rounds the final numeric result to the nearest integer.
 
 # TODO
 

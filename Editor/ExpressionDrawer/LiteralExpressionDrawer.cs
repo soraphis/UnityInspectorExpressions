@@ -32,8 +32,7 @@ namespace UnityInspectorExpressions.Expressions
         }
     }
 
-    [CustomPropertyDrawer(typeof(LiteralFloatExpression<>))]
-    [CustomPropertyDrawer(typeof(LiteralIntExpression<>))]
+    [CustomPropertyDrawer(typeof(LiteralNumericExpression<>))]
     [CustomPropertyDrawer(typeof(LiteralComponentExpression<>))]
     [CustomPropertyDrawer(typeof(LiteralGameObjectExpression<>))]
     [CustomPropertyDrawer(typeof(LiteralStringExpression<>))]

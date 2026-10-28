@@ -9,8 +9,8 @@ using UnityEngine.UIElements;
 
 namespace UnityInspectorExpressions.Expressions
 {
-    [CustomPropertyDrawer(typeof(FloatAssignmentExpression<>))]
-    public class FloatAssignmentExpressionDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(NumericAssignmentExpression<>))]
+    public class NumericAssignmentExpressionDrawer : PropertyDrawer
     {
         const string s_PathPropertyName  = "m_PathToProperty";
         const string s_ValuePropertyName = "m_Value";
@@ -29,12 +29,16 @@ namespace UnityInspectorExpressions.Expressions
             if (genericType != null)
             {
                 var propertyNames = new List<string>();
+                var propertyTypes = new Dictionary<string, System.Type>();
 
                 var parentPropInfos = genericType.GetProperties()
                     .Where(x => x.GetCustomAttributes(typeof(CreatePropertyAttribute), true).Any())
+                    .Where(x => x.PropertyType == typeof(int) || x.PropertyType == typeof(float))
                     .ToList();
 
-                propertyNames.AddRange(parentPropInfos.Select(x => x.Name).Append("None"));
+                propertyNames.AddRange(parentPropInfos.Select(x => x.Name));
+                foreach (var propInfo in parentPropInfos)
+                    propertyTypes[propInfo.Name] = propInfo.PropertyType;
 
                 foreach (var propInfo in parentPropInfos)
                 {
@@ -42,11 +46,17 @@ namespace UnityInspectorExpressions.Expressions
                     var subtype    = propInfo.PropertyType;
                     if (subtype.GetCustomAttribute<GeneratePropertyBagAttribute>() is not null)
                     {
-                        propertyNames.AddRange(subtype.GetProperties()
+                        var nestedProperties = subtype.GetProperties()
                             .Where(x => x.GetCustomAttributes<CreatePropertyAttribute>(true).Any())
-                            .Select(x => parentName + "." + x.Name));
+                            .Where(x => x.PropertyType == typeof(int) || x.PropertyType == typeof(float))
+                            .ToList();
+                        propertyNames.AddRange(nestedProperties.Select(x => parentName + "." + x.Name));
+                        foreach (var nestedProperty in nestedProperties)
+                            propertyTypes[parentName + "." + nestedProperty.Name] = nestedProperty.PropertyType;
                     }
                 }
+
+                propertyNames.Add("None");
 
                 propertyNames.Sort();
 
@@ -62,7 +72,11 @@ namespace UnityInspectorExpressions.Expressions
                 var pathPropCopy = pathProp.Copy();
                 dropdown.RegisterValueChangedCallback(evt =>
                 {
-                    pathPropCopy.stringValue = evt.newValue == "None" ? "" : evt.newValue;
+                    var selectedPath = evt.newValue == "None" ? "" : evt.newValue;
+                    pathPropCopy.stringValue = selectedPath;
+                    var integerFlag = property.FindPropertyRelative("m_IsIntegerPath");
+                    if (integerFlag != null)
+                        integerFlag.boolValue = propertyTypes.TryGetValue(selectedPath, out var propertyType) && propertyType == typeof(int);
                     pathPropCopy.serializedObject.ApplyModifiedProperties();
                 });
                 pathField = dropdown;

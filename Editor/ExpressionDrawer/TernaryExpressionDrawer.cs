@@ -9,9 +9,8 @@ using UnityEngine.UIElements;
 namespace UnityInspectorExpressions.Expressions
 {
 
-    [CustomPropertyDrawer(typeof(TernaryFloatExpression<>))]
-    [CustomPropertyDrawer(typeof(TernaryIntExpression<>))]
-    public class TernaryFloatExpressionDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(TernaryNumericExpression<>))]
+    public class TernaryNumericExpressionDrawer : PropertyDrawer
     {
         const string s_InnerProperty1Name   = "m_InnerExpr1";
         const string s_InnerProperty2Name   = "m_InnerExpr2";

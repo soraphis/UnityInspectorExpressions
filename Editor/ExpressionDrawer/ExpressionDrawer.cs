@@ -10,8 +10,7 @@ using UnityEngine.UIElements;
 namespace UnityInspectorExpressions.Expressions
 {
     [CustomPropertyDrawer(typeof(BoolExpression<>))]
-    [CustomPropertyDrawer(typeof(FloatExpression<>))]
-    [CustomPropertyDrawer(typeof(IntExpression<>))]
+    [CustomPropertyDrawer(typeof(NumericExpression<>))]
     [CustomPropertyDrawer(typeof(GenericExpression<,>))]
     [CustomPropertyDrawer(typeof(Vector2Expression<>))]
     [CustomPropertyDrawer(typeof(Vector3Expression<>))]

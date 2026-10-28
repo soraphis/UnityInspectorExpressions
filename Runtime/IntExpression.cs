@@ -7,23 +7,25 @@ namespace UnityInspectorExpressions.Expressions
 	[System.Serializable]
 	public struct IntExpression<TCtx> : IExpression<int, TCtx>, ISerializationCallbackReceiver
 	{
-		[SerializeReference] internal IntExpressionBase<TCtx> m_ExpressionRef;
+		[SerializeField] internal NumericExpression<TCtx> m_NumericExpression;
 
-		public IntExpression(IntExpressionBase<TCtx> @ref) : this() { m_ExpressionRef = @ref; }
+		public IntExpression(NumericExpression<TCtx> expression) : this() { m_NumericExpression = expression; }
 
-		public static IntExpression<TCtx> FromLiteral(int value) => new(new LiteralIntExpression<TCtx>(value));
+		public static IntExpression<TCtx> FromLiteral(int value) => new(NumericExpression<TCtx>.FromLiteral(value));
 		public static implicit operator IntExpression<TCtx>(int value) => FromLiteral(value);
+		public static implicit operator IntExpression<TCtx>(NumericExpression<TCtx> expression) => new(expression);
+
+		internal static int Round(float value) => Mathf.RoundToInt(value);
 
 		[Pure]
-		public int Evaluate(TCtx ctx) => m_ExpressionRef == null ? default : m_ExpressionRef.Evaluate(ctx);
+		public int Evaluate(TCtx ctx) => Round(m_NumericExpression.Evaluate(ctx));
 
-		public void OnAfterDeserialize()  { if (m_ExpressionRef == null) m_ExpressionRef = new LiteralIntExpression<TCtx>(0); }
-		public void OnBeforeSerialize()   { if (m_ExpressionRef == null) m_ExpressionRef = new LiteralIntExpression<TCtx>(0); }
+		public void OnAfterDeserialize()  { if (m_NumericExpression.m_ExpressionRef == null) m_NumericExpression.OnAfterDeserialize(); }
+		public void OnBeforeSerialize()   { if (m_NumericExpression.m_ExpressionRef == null) m_NumericExpression.OnBeforeSerialize(); }
 
 		public override string ToString()
 		{
-			if (m_ExpressionRef == null) return base.ToString();
-			return m_ExpressionRef.ToString();
+			return m_NumericExpression.ToString();
 		}
 	}
 }
